@@ -254,5 +254,24 @@ namespace API_PCHY.Models.QLTN.QLTN_YCTN
             }
         }
 
+
+        public bool ban_giao_ket_qua_YCTN(QLTN_YCTN_Model model)
+        {
+            string dv_nhan_ban_giao = JsonSerializer.Serialize(model.don_vi_nhan_ban_giao);
+            try
+            {
+                string result = helper.ExcuteNonQuery("PKG_QLTN_VINH.ban_giao_ket_qua_YCTN", "p_Error",
+                                                    "p_MA_YCTN", "p_NGUOI_BAN_GIAO", "p_NGAY_BAN_GIAO",
+                                                    "p_GHI_CHU_BAN_GIAO", "p_DON_VI_NHAN_BAN_GIAO",
+                                                    model.ma_yctn, model.nguoi_ban_giao, model.ngay_ban_giao,
+                                                    model.ghi_chu_ban_giao, dv_nhan_ban_giao);
+
+                return string.IsNullOrEmpty(result);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

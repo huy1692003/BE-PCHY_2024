@@ -126,5 +126,21 @@ namespace API_PCHY.Controllers.QLTN.QLTN_YCTN
                 return BadRequest($"Lỗi: {ex.Message}");
             }
         }
+
+
+        [HttpPost]
+        [Route("BanGiaoKetQua")]
+        public IActionResult BanGiaoKetQua([FromBody] QLTN_YCTN_Model model)
+        {
+            try
+            {
+                bool result = _manager.ban_giao_ket_qua_YCTN(model);
+                return result ? Ok("Cập nhật bàn giao kết quả thành công") : BadRequest("Cập nhật bàn giao kết quả thất bại");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Lỗi: {ex.Message}");
+            }
+        }
     }
 }

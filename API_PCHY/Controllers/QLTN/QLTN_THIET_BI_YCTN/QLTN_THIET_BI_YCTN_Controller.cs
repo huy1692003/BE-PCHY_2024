@@ -52,45 +52,25 @@ namespace API_PCHY.Controllers.QLTN.QLTN_THIET_BI_YCTN
 
         [Route("insert_Multiple_Thiet_Bi_YCTN")]
         [HttpPost]
-        public IActionResult InsertMultiple([FromBody] List<QLTN_THIET_BI_Model> devices)
+        public string InsertMultiple(List<QLTN_THIET_BI_Model> models)
         {
-            if (devices == null || !devices.Any())
-                return BadRequest("Danh sách thiết bị không được rỗng.");
+            string result = string.Empty;
 
-            var errors = new List<string>();
-            var successCount = 0;
-
-            // Có thể xem xét sử dụng Parallel.ForEach nếu các thao tác insert độc lập
-            foreach (var device in devices)
+            foreach (var model in models)
             {
-                try
+                // Gọi hàm insert_QLTN_THIET_BI cho mỗi đối tượng model
+                result = manager.insert_QLTN_THIET_BI(model);
+
+                // Kiểm tra kết quả trả về nếu cần
+                if (!string.IsNullOrEmpty(result))
                 {
-                    string result = manager.insert_QLTN_THIET_BI(device);
-                    if (string.IsNullOrEmpty(result))
-                    {
-                        successCount++;
-                    }
-                    else
-                    {
-                        errors.Add($"Thiết bị {device.ten_thiet_bi}: {result}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    errors.Add($"Thiết bị {device.ten_thiet_bi}: {ex.Message}");
+                    // Xử lý lỗi nếu cần
+                    break;
                 }
             }
 
-            return Ok(new
-            {
-                Success = errors.Count == 0,
-                Message = errors.Any()
-                    ? $"Đã thêm thành công {successCount}/{devices.Count} thiết bị. Có {errors.Count} lỗi."
-                    : "Tất cả thiết bị đã được thêm thành công.",
-                Errors = errors
-            });
+            return result; // Trả về kết quả cuối cùng
         }
-
 
 
 
