@@ -1,0 +1,11 @@
+
+        // Create new lua chons
+        if (values.luaChons) {
+          for (const luaChon of values.luaChons) {
+            await luachonService.create({
+              ...luaChon,
+              laDapAnDung: luaChon.laDapAnDung || false,
+              cauHoiId: cauHoiId
+            })
+          }
+        }

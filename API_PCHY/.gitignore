@@ -1,0 +1,12 @@
+# Thư mục IDE
+.vscode/
+.vs/
+.user/
+.suo/
+
+# Thư mục biên dịch
+/bin/
+/obj/
+*.exe
+*.dll
+*.pdb
