@@ -35,7 +35,7 @@ namespace API_PCHY.Models.QLTN.QLTN_YCTN
         public DateTime? ngay_nhap_kl_thuc_hien { get; set; }
         public string? nguoi_nhap_kl_thuc_hien { get; set; }
         public string? nguoi_ban_giao { get; set; }
-        public string? don_vi_nhan_ban_giao { get; set; }
+        public List<String>? don_vi_nhan_ban_giao { get; set; }
         public DateTime? ngay_ban_giao { get; set; }
         public string? ghi_chu_ban_giao { get; set; }
         public decimal? phan_tram_thue { get; set; }

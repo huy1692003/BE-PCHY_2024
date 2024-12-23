@@ -209,7 +209,7 @@ namespace API_PCHY.Models.QLTN.QLTN_YCTN
                     data.nguoi_ban_giao = ds.Rows[0]["NGUOI_BAN_GIAO"] != DBNull.Value ? ds.Rows[0]["NGUOI_BAN_GIAO"].ToString() : null;
                     data.nguoi_tao = ds.Rows[0]["NGUOI_TAO"] != DBNull.Value ? ds.Rows[0]["NGUOI_TAO"].ToString() : null;
                     data.nguoi_sua = ds.Rows[0]["NGUOI_SUA"] != DBNull.Value ? ds.Rows[0]["NGUOI_SUA"].ToString() : null;
-                    data.don_vi_nhan_ban_giao = ds.Rows[0]["DON_VI_NHAN_BAN_GIAO"] != DBNull.Value ? ds.Rows[0]["DON_VI_NHAN_BAN_GIAO"].ToString() : null;
+                    data.don_vi_nhan_ban_giao = ds.Rows[0]["DON_VI_NHAN_BAN_GIAO"] != DBNull.Value ? JsonSerializer.Deserialize<List<string>>(ds.Rows[0]["DON_VI_NHAN_BAN_GIAO"].ToString()) : null;
                     data.ngay_ban_giao = ds.Rows[0]["NGAY_BAN_GIAO"] != DBNull.Value ? DateTime.Parse(ds.Rows[0]["NGAY_BAN_GIAO"].ToString()) : null;
                     data.ghi_chu_ban_giao = ds.Rows[0]["GHI_CHU_BAN_GIAO"] != DBNull.Value ? ds.Rows[0]["GHI_CHU_BAN_GIAO"].ToString() : null;
                     data.phan_tram_thue = ds.Rows[0]["PHAN_TRAM_THUE"] != DBNull.Value ? decimal.Parse(ds.Rows[0]["PHAN_TRAM_THUE"].ToString()) : null;
