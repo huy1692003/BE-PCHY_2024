@@ -50,6 +50,40 @@ namespace API_PCHY.Models.QLTN.QLTN_YCTN
         public List<QLTN_YCTN_LOG_Model>? qltn_yctn_log { get; set; } 
     }
 
+
+    public class QLTN_YCTN_RequestDTO
+    {
+
+        public string? SearchTerm { get; set; }
+        public string? MaLoaiYCTN { get; set; }
+        public string? DonViThucHien { get; set; }
+        public int? IdKhachHang { get; set; }
+        public int? CrrStep { get; set; }
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+
+
+    public class QLTN_YCTN_ResonseDTO
+    {
+        public int? id { get; set; }
+        public string? ten_yctn { get; set; }
+        public string? ma_yctn { get; set; }
+        public string? ma_loai_yctn { get; set; }
+
+        public string? ten_loai_yctn { get; set; }
+        public string? ma_khach_hang { get; set; }
+        public DateTime? ngay_tao { get; set; }
+        public string? nguoi_tao { get; set; }
+        public List<string>? don_vi_thuc_hien { get; set; }
+        public int? cur_step { get; set; }
+        public string? ten_buoc_current { get; set; }
+        public string? ten_buoc_next { get; set; }
+        public int? nex_step { get; set; }
+    }
+
+
     public class QLTN_YCTN_LOG_Model : QLTN_YCTN_Model
     {
         public QLTN_YCTN_LOG_Model()
