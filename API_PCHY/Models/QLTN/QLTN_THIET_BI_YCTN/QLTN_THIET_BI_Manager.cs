@@ -146,5 +146,23 @@ namespace API_PCHY.Models.QLTN.QLTN_THIET_BI_YCTN
                 throw new Exception($"Lỗi khi thực thi Search_QLTN_THIET_BI: {ex.Message}");
             }
         }
+
+        public string Nhap_Khoi_Luong_Phat_Sinh(QLTN_THIET_BI_Model model)
+        {
+            try
+            {
+                string result = helper.ExcuteNonQuery("PKG_QLTN_VINH.Nhap_Khoi_Luong_Phat_Sinh", "p_Error",
+                        "p_MA_TBTN", "p_MA_YCTN", "p_TEN_THIET_BI", "p_MA_LOAI_TB",
+                        "p_SO_LUONG", "p_TRANG_THAI", "p_NGUOI_TAO", "p_TEN_LOAI_THIET_BI",
+                        model.ma_tbtn, model.ma_yctn, model.ten_thiet_bi, model.ma_loai_tb,
+                        model.so_luong, model.trang_thai, model.nguoi_tao, model.ten_loai_thiet_bi
+                        );
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

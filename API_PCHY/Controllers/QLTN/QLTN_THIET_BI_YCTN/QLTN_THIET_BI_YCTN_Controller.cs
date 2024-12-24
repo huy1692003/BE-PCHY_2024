@@ -263,5 +263,28 @@ namespace API_PCHY.Controllers.QLTN.QLTN_THIET_BI_YCTN
             }
         }
 
-    } 
+
+        [Route("Nhap_Khoi_Luong_Phat_Sinh")]
+        [HttpPost]
+        public string Nhap_Khoi_Luong_Phat_Sinh(List<QLTN_THIET_BI_Model> models)
+        {
+            string result = string.Empty;
+
+            foreach (var model in models)
+            {
+                // Gọi hàm insert_QLTN_THIET_BI cho mỗi đối tượng model
+                result = manager.Nhap_Khoi_Luong_Phat_Sinh(model);
+
+                // Kiểm tra kết quả trả về nếu cần
+                if (!string.IsNullOrEmpty(result))
+                {
+                    // Xử lý lỗi nếu cần
+                    break;
+                }
+            }
+
+            return result; // Trả về kết quả cuối cùng
+        }
+
+    }
 }
