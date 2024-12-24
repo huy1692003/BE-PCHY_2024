@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Text.Json;
 using API_PCHY.Models.QLTN.DM_LOAI_YCTN;
 using API_PCHY.Models.QLTN.DM_LOAITHIETBI;
 using API_PCHY.Models.QLTN.DM_TRUONG_YCTN;
 using APIPCHY.Helpers;
 using APIPCHY_PhanQuyen.Models.QLKC.DM_PHONGBAN;
+using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 
 namespace API_PCHY.Models.QLTN.QLTN_YCTN
@@ -166,6 +168,84 @@ namespace API_PCHY.Models.QLTN.QLTN_YCTN
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+
+        public List<QLTN_YCTN_ResonseDTO> get_DANH_SACH_YCTN(QLTN_YCTN_RequestDTO request, out long total)
+        {
+            List<QLTN_YCTN_ResonseDTO> result = new List<QLTN_YCTN_ResonseDTO>();
+            total = 0;
+
+            using (OracleConnection cn = new ConnectionOracle().getConnection())
+            {
+                cn.Open();
+                try
+                {
+                    using (OracleCommand cmd = new OracleCommand())
+                    {
+                        cmd.Connection = cn;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = @"PKG_QLTN_TANH.get_DANH_SACH_YCTN";
+
+                        cmd.Parameters.Add("p_searchTerm", OracleDbType.Varchar2).Value = (object?)request.SearchTerm ?? DBNull.Value;
+                        cmd.Parameters.Add("p_MA_LOAI_YCTN", OracleDbType.Varchar2).Value = (object?)request.MaLoaiYCTN ?? DBNull.Value;
+                        cmd.Parameters.Add("p_DON_VI_THUC_HIEN", OracleDbType.Varchar2).Value = (object?)request.DonViThucHien ?? DBNull.Value;
+                        cmd.Parameters.Add("p_ID_KHACH_HANG", OracleDbType.Int32).Value = (object?)request.IdKhachHang ?? DBNull.Value;
+                        cmd.Parameters.Add("p_CRR_STEP", OracleDbType.Int32).Value = (object?)request.CrrStep ?? DBNull.Value;
+                        cmd.Parameters.Add("p_pageIndex", OracleDbType.Int32).Value = request.PageIndex;
+                        cmd.Parameters.Add("p_pageSize", OracleDbType.Int32).Value = request.PageSize;
+
+                        cmd.Parameters.Add("p_getDB", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add("p_totalRecords", OracleDbType.Int32).Direction = ParameterDirection.Output;
+
+                        using (OracleDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                QLTN_YCTN_ResonseDTO model = new QLTN_YCTN_ResonseDTO
+                                {
+                                    id = reader["ID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["ID"]),
+                                    ten_yctn = reader["TEN_YCTN"] == DBNull.Value ? null : reader["TEN_YCTN"].ToString(),
+                                    ma_yctn = reader["MA_YCTN"] == DBNull.Value ? null : reader["MA_YCTN"].ToString(),
+                                    ma_loai_yctn = reader["MA_LOAI_YCTN"] == DBNull.Value ? null : reader["MA_LOAI_YCTN"].ToString(),
+                                    ma_khach_hang = reader["MA_KHACH_HANG"] == DBNull.Value ? null : reader["MA_KHACH_HANG"].ToString(),
+                                    ngay_tao = reader["NGAY_TAO"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["NGAY_TAO"]),
+                                    ten_loai_yctn = reader["TEN_LOAI_YCTN"] == DBNull.Value ? null : reader["TEN_LOAI_YCTN"].ToString(),
+                                    nguoi_tao = reader["NGUOI_TAO"] == DBNull.Value ? null : reader["NGUOI_TAO"].ToString(),
+                                    ten_buoc_next = reader["TEN_BUOC_NEXT"] == DBNull.Value ? null : reader["TEN_BUOC_NEXT"].ToString(),
+                                    ten_buoc_current = reader["TEN_BUOC_CURRENT"] == DBNull.Value ? null : reader["TEN_BUOC_CURRENT"].ToString(),
+                                    don_vi_thuc_hien = reader["TEN_DON_VI_THUC_HIEN"] == DBNull.Value
+                                                            ? new List<string>()
+                                                            : reader["TEN_DON_VI_THUC_HIEN"].ToString()
+                                                                ?.Split(',')
+                                                                .Select(s => s.Trim())
+                                                                .ToList(),
+                                    cur_step = reader["CRR_STEP"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["CRR_STEP"]),
+                                    nex_step = reader["NEXT_STEP"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["NEXT_STEP"]),
+                                };
+
+                                result.Add(model);
+                            }
+                        }
+
+                        var totalRecordsValue = cmd.Parameters["p_totalRecords"].Value;
+                        total = totalRecordsValue != null && totalRecordsValue != DBNull.Value
+                            ? Convert.ToInt32(((OracleDecimal)totalRecordsValue).Value)
+                        : 0;
+
+                    }
+                }
+                catch (OracleException ex)
+                {
+                    throw new Exception($"Oracle error occurred: {ex.Message}", ex);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An unexpected error occurred while fetching data.", ex);
+                }
+            }
+
+            return result;
         }
 
         public QLTN_YCTN_Model get_QLTN_YCTN_ByID(string Ma_YCTN)
