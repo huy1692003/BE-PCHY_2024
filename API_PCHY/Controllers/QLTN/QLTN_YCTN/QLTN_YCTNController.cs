@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using API_PCHY.Models.QLTN.QLTN_YCTN;
 using System;
+using System.Collections.Generic;
 
 namespace API_PCHY.Controllers.QLTN.QLTN_YCTN
 {
@@ -92,6 +93,26 @@ namespace API_PCHY.Controllers.QLTN.QLTN_YCTN
                 return BadRequest($"Lỗi: {ex.Message}");
             }
         }
+
+
+
+        [HttpPost]
+        [Route("get_DANH_SACH_YCTN")]
+        public IActionResult GetDanhSachYCTN([FromBody] QLTN_YCTN_RequestDTO request)
+        {
+            long totalRecords;
+            List<QLTN_YCTN_ResonseDTO> data = _manager.get_DANH_SACH_YCTN(request, out totalRecords);
+
+            return Ok(new
+            {
+                TotalRecords = totalRecords,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize,
+                Data = data
+            });
+        }
+
+
 
         [HttpGet]
         [Route("SearchMaYCTN")]
