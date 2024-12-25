@@ -11,6 +11,7 @@ using OfficeOpenXml.Style;
 using System.Drawing;
 using System.Linq;
 using System.Transactions;
+using API_PCHY.Models.QLTN.DM_LOAITHIETBI;
 
 namespace API_PCHY.Controllers.QLTN.QLTN_THIET_BI_YCTN
 {
@@ -19,6 +20,7 @@ namespace API_PCHY.Controllers.QLTN.QLTN_THIET_BI_YCTN
     public class QLTN_THIET_BI_YCTN_Controller : ControllerBase
     {
         QLTN_THIET_BI_Manager manager = new QLTN_THIET_BI_Manager();
+        DM_LOAITHIETBI_Manager manager_DMLoaiTB = new DM_LOAITHIETBI_Manager();
 
         [Route("getAll_thietbi_byMA_YCTN")]
         [HttpPost]
@@ -202,60 +204,51 @@ namespace API_PCHY.Controllers.QLTN.QLTN_THIET_BI_YCTN
         {
             try
             {
-                // Bật giấy phép không thương mại của EPPlus
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-                // 1. Tạo file Excel mẫu
-                using (var package = new ExcelPackage())
+                List<DM_LOAITHIETBI_Model> result = manager_DMLoaiTB.getALL_DM_LOAITHIETBI();
+                // Đường dẫn đến file mẫu trong thư mục dự án
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "fileImportExel", "fileImportExel.xlsx");
+                if (!System.IO.File.Exists(templatePath))
                 {
-                    // Tạo worksheet
-                    var worksheet = package.Workbook.Worksheets.Add("Sheet1");
-
-                    // Thêm tiêu đề các cột
-                    worksheet.Cells[1, 1].Value = "STT";
-                    worksheet.Cells[1, 2].Value = "Mã loại thiết bị";
-                    worksheet.Cells[1, 3].Value = "Tên thiết bị";
-                    worksheet.Cells[1, 4].Value = "Số lượng";
-
-                    // Thêm dữ liệu ví dụ
-                    worksheet.Cells[2, 1].Value = "1";
-                    worksheet.Cells[2, 2].Value = "Mã loại thiết bị";
-                    worksheet.Cells[2, 3].Value = "Tên thiết bị";
-                    worksheet.Cells[2, 4].Value = "0";
-
-                    worksheet.Cells[3, 1].Value = "...";
-                    worksheet.Cells[3, 2].Value = "...";
-                    worksheet.Cells[3, 3].Value = "...";
-                    worksheet.Cells[3, 4].Value = "...";
-
-                    worksheet.Row(1).Height = 30;  // Điều chỉnh chiều cao của hàng đầu tiên
-                    worksheet.Column(1).Width = 30;
-                    worksheet.Column(2).Width = 30;
-                    worksheet.Column(3).Width = 30;
-                    worksheet.Column(4).Width = 30;
-
-                    // Định dạng cột tiêu đề (hàng đầu tiên)
-                    using (var range = worksheet.Cells[1, 1, 1, 4])
-                    {
-                        range.Style.Font.Bold = true;
-                        range.Style.Font.Size = 20;  // Thay đổi cỡ chữ cho tiêu đề (14 là cỡ chữ ví dụ)
-                        range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        range.Style.Fill.BackgroundColor.SetColor(Color.Green);
-                        range.Style.Font.Color.SetColor(Color.White);
-
-                    }
-                    // 2. Trả file về phía client với tên có thêm ngày tháng
-                    var stream = new MemoryStream();
-                    package.SaveAs(stream);
-                    stream.Position = 0; // Reset lại vị trí stream
-
-                    // Lấy ngày tháng hiện tại để thêm vào tên file
-                    string datePart = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                    string fileName = $"ExportTemplateFile_KhoiLuongThucHien_{datePart}.xlsx";
-
-                    return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                    return NotFound("File mẫu không tồn tại.");
                 }
+                // Lấy ngày tháng hiện tại để thêm vào tên file tải về
+                string datePart = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string fileName = $"ExportTemplateFile_KhoiLuongThucHien_{datePart}.xlsx";
+
+                // Sử dụng EPPlus để đọc file mẫu và chỉnh sửa
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Bật giấy phép không thương mại
+
+                // Tạo một MemoryStream để lưu file
+                var memoryStream = new MemoryStream();
+
+                using (var package = new ExcelPackage(new FileInfo(templatePath)))
+                {
+ 
+                    // Lấy sheet thứ hai (đã tồn tại)
+                    var worksheet = package.Workbook.Worksheets["Danh sách Loại thiết bị"];
+
+                    // Bắt đầu ghi dữ liệu từ dòng thứ 2
+                    int startRow = 2;
+
+                    // Ghi dữ liệu từ danh sách result
+                    foreach (var item in result)
+                    {
+                        worksheet.Cells[startRow, 1].Value = startRow - 1; // STT
+                        worksheet.Cells[startRow, 2].Value = item.ma_loai_tb; // Mã loại thiết bị
+                        worksheet.Cells[startRow, 3].Value = item.ten_loai_tb; // Tên loại thiết bị
+                        startRow++;
+                    }
+
+                    // Tự động căn chỉnh cột cho dữ liệu mới ghi
+                    worksheet.Cells[1, 1, startRow - 1, 3].AutoFitColumns();
+
+                    // Lưu file vào MemoryStream
+                    package.SaveAs(memoryStream);
+                }
+                // Đặt lại vị trí stream trước khi trả về
+                memoryStream.Position = 0;
+                // Trả về file
+                return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
             catch (Exception ex)
             {
