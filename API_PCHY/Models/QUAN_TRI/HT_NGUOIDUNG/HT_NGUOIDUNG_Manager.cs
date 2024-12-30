@@ -720,78 +720,75 @@ namespace APIPCHY_PhanQuyen.Models.QLTN.HT_NGUOIDUNG
         }
 
 
+
         public List<HT_MENU_Model> get_HT_MENU_ByIDUser(string userId)
         {
             try
             {
                 DataTable tb = helper.ExcuteReader("PKG_QLTN_QUANTRI.get_HT_MENUByUserId", "p_UserID", userId);
                 List<HT_MENU_Model> results = new List<HT_MENU_Model>();
+
                 if (tb != null)
                 {
-                    for (int i = 0; i < tb.Rows.Count; i++)
+                    // Tạo danh sách tất cả các menu
+                    foreach (DataRow row in tb.Rows)
                     {
-                        HT_MENU_Model model = new HT_MENU_Model();
-                        model.children = new List<HT_MENU_Model>();
-                        if (tb.Rows[i]["PARENT_ID"] != DBNull.Value)
+                        HT_MENU_Model model = new HT_MENU_Model
                         {
-                            model.id = tb.Rows[i]["ID"] != DBNull.Value ? int.Parse(tb.Rows[i]["ID"].ToString()) : null;
-                            model.ten_menu = tb.Rows[i]["TEN_MENU"] != DBNull.Value ? tb.Rows[i]["TEN_MENU"].ToString() : null;
-                            model.ghi_chu = tb.Rows[i]["GHI_CHU"] != DBNull.Value ? tb.Rows[i]["GHI_CHU"].ToString() : null;
-                            model.ngay_tao = tb.Rows[i]["NGAY_TAO"] != DBNull.Value ? DateTime.Parse(tb.Rows[i]["NGAY_TAO"].ToString()) : null;
-                            model.nguoi_tao = tb.Rows[i]["NGUOI_TAO"] != DBNull.Value ? tb.Rows[i]["NGUOI_TAO"].ToString() : null;
-                            model.ngay_sua = tb.Rows[i]["NGAY_SUA"] != DBNull.Value ? DateTime.Parse(tb.Rows[i]["NGAY_SUA"].ToString()) : null;
-                            model.nguoi_sua = tb.Rows[i]["NGUOI_SUA"] != DBNull.Value ? tb.Rows[i]["NGUOI_SUA"].ToString() : null;
-                            model.duong_dan = tb.Rows[i]["DUONG_DAN"] != DBNull.Value ? tb.Rows[i]["DUONG_DAN"].ToString() : null;
-                            model.parent_id = tb.Rows[i]["PARENT_ID"] != DBNull.Value ? int.Parse(tb.Rows[i]["PARENT_ID"].ToString()) : null;
-                            model.icon = tb.Rows[i]["ICON"] != DBNull.Value ? tb.Rows[i]["ICON"].ToString() : null;
-                            model.sap_xep = tb.Rows[i]["SAP_XEP"] != DBNull.Value ? int.Parse(tb.Rows[i]["SAP_XEP"].ToString()) : null;
-                            model.children = null;
-                            if (results.Count > 0)
-                            {
-                                HT_MENU_Model parent = results.FirstOrDefault<HT_MENU_Model>(menu => menu.id == model.parent_id);
-                                if (parent != null)
-                                {
-                                    if (parent.children != null)
-                                    {
-                                        parent.children.Add(model);
+                            id = row["ID"] != DBNull.Value ? int.Parse(row["ID"].ToString()) : (int?)null,
+                            ten_menu = row["TEN_MENU"] != DBNull.Value ? row["TEN_MENU"].ToString() : null,
+                            ghi_chu = row["GHI_CHU"] != DBNull.Value ? row["GHI_CHU"].ToString() : null,
+                            ngay_tao = row["NGAY_TAO"] != DBNull.Value ? DateTime.Parse(row["NGAY_TAO"].ToString()) : (DateTime?)null,
+                            nguoi_tao = row["NGUOI_TAO"] != DBNull.Value ? row["NGUOI_TAO"].ToString() : null,
+                            ngay_sua = row["NGAY_SUA"] != DBNull.Value ? DateTime.Parse(row["NGAY_SUA"].ToString()) : (DateTime?)null,
+                            nguoi_sua = row["NGUOI_SUA"] != DBNull.Value ? row["NGUOI_SUA"].ToString() : null,
+                            duong_dan = row["DUONG_DAN"] != DBNull.Value ? row["DUONG_DAN"].ToString() : null,
+                            parent_id = row["PARENT_ID"] != DBNull.Value ? int.Parse(row["PARENT_ID"].ToString()) : (int?)null,
+                            icon = row["ICON"] != DBNull.Value ? row["ICON"].ToString() : null,
+                            sap_xep = row["SAP_XEP"] != DBNull.Value ? int.Parse(row["SAP_XEP"].ToString()) : (int?)null,
 
-                                    }
-                                    else
-                                    {
-                                        parent.children = new List<HT_MENU_Model> { model };
-
-                                    }
-                                }
-
-                            }
-                        }
-                        else
-                        {
-                            model.id = tb.Rows[i]["ID"] != DBNull.Value ? int.Parse(tb.Rows[i]["ID"].ToString()) : null;
-                            model.ten_menu = tb.Rows[i]["TEN_MENU"] != DBNull.Value ? tb.Rows[i]["TEN_MENU"].ToString() : null;
-                            model.ghi_chu = tb.Rows[i]["GHI_CHU"] != DBNull.Value ? tb.Rows[i]["GHI_CHU"].ToString() : null;
-                            model.ngay_tao = tb.Rows[i]["NGAY_TAO"] != DBNull.Value ? DateTime.Parse(tb.Rows[i]["NGAY_TAO"].ToString()) : null;
-                            model.nguoi_tao = tb.Rows[i]["NGUOI_TAO"] != DBNull.Value ? tb.Rows[i]["NGUOI_TAO"].ToString() : null;
-                            model.ngay_sua = tb.Rows[i]["NGAY_SUA"] != DBNull.Value ? DateTime.Parse(tb.Rows[i]["NGAY_SUA"].ToString()) : null;
-                            model.nguoi_sua = tb.Rows[i]["NGUOI_SUA"] != DBNull.Value ? tb.Rows[i]["NGUOI_SUA"].ToString() : null;
-                            model.duong_dan = tb.Rows[i]["DUONG_DAN"] != DBNull.Value ? tb.Rows[i]["DUONG_DAN"].ToString() : null;
-                            model.parent_id = tb.Rows[i]["PARENT_ID"] != DBNull.Value ? int.Parse(tb.Rows[i]["PARENT_ID"].ToString()) : null;
-                            model.icon = tb.Rows[i]["ICON"] != DBNull.Value ? tb.Rows[i]["ICON"].ToString() : null;
-                            model.sap_xep = tb.Rows[i]["SAP_XEP"] != DBNull.Value ? int.Parse(tb.Rows[i]["SAP_XEP"].ToString()) : null;
-                            model.children = null;
-                            results.Add(model);
-                        }
-
+                        };
+                        results.Add(model);
                     }
                 }
-                return results;
+
+                return BuildMenuTree(results);
+
 
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+                
             }
         }
+        public List<HT_MENU_Model> BuildMenuTree(List<HT_MENU_Model> menus, int? parentId = null)
+        {
+            if (menus == null || !menus.Any()) // Kiểm tra danh sách null hoặc rỗng
+                return new List<HT_MENU_Model>();
+
+            return menus
+                .Where(m => m.parent_id == parentId)
+                .Select(m => new HT_MENU_Model
+                {
+                    id = m.id,
+                    ten_menu = m.ten_menu,
+                    ghi_chu = m.ghi_chu,
+                    ngay_tao = m.ngay_tao,
+                    nguoi_tao = m.nguoi_tao,
+                    ngay_sua = m.ngay_sua,
+                    nguoi_sua = m.nguoi_sua,
+                    duong_dan = m.duong_dan,
+                    parent_id = m.parent_id,
+                    icon = m.icon,
+                    sap_xep = m.sap_xep,
+                    children = BuildMenuTree(menus, m.id) ?? new List<HT_MENU_Model>() // Đảm bảo không trả về null
+                })
+                .ToList();
+        }
+
+
+
 
 
     }

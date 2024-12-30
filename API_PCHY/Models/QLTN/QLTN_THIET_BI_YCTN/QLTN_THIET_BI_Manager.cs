@@ -1,4 +1,5 @@
-﻿using APIPCHY.Helpers;
+﻿using API_PCHY.Models.QLTN.QLTN_CHI_TIET_THI_NGHIEM;
+using APIPCHY.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,6 +9,7 @@ namespace API_PCHY.Models.QLTN.QLTN_THIET_BI_YCTN
     public class QLTN_THIET_BI_Manager
     {
         DataHelper helper = new DataHelper();
+        QLTN_CHI_TIET_THI_NGHIEM_Manager ct=new  QLTN_CHI_TIET_THI_NGHIEM_Manager();
 
         public List<QLTN_THIET_BI_Model> getALL_QLTN_THIET_BI_byMA_yctn(QLTN_THIET_BI_Model model_ip)
         {
@@ -29,6 +31,7 @@ namespace API_PCHY.Models.QLTN.QLTN_THIET_BI_YCTN
                         model.trang_thai = tb.Rows[i]["TRANG_THAI"] != DBNull.Value ? int.Parse(tb.Rows[i]["TRANG_THAI"].ToString()) : null;
                         model.ngay_tao = tb.Rows[i]["NGAY_TAO"] != DBNull.Value ? Convert.ToDateTime(tb.Rows[i]["NGAY_TAO"]) : null;
                         model.nguoi_tao = tb.Rows[i]["NGUOI_TAO"] != DBNull.Value ? tb.Rows[i]["NGUOI_TAO"].ToString() : null;
+                        model.listTN = ct.get_QLTN_CHITIET_TN_by_MATBTN(model.ma_tbtn, model.ma_yctn);
                         model.ten_loai_thiet_bi = tb.Rows[i]["TEN_LOAI_THIET_BI"] != DBNull.Value ? tb.Rows[i]["TEN_LOAI_THIET_BI"].ToString() : null;
                         result.Add(model);
                     }
@@ -129,6 +132,7 @@ namespace API_PCHY.Models.QLTN.QLTN_THIET_BI_YCTN
                         model.ma_loai_tb = tb.Rows[i]["MA_LOAI_TB"] != DBNull.Value ? tb.Rows[i]["MA_LOAI_TB"].ToString() : null;
                         //model.so_luong = tb.Rows[i]["SO_LUONG"] != DBNull.Value ? tb.Rows[i]["SO_LUONG"].ToString() : null;
                         //model.trang_thai = tb.Rows[i]["TRANG_THAI"] != DBNull.Value ? tb.Rows[i]["TRANG_THAI"].ToString() : null;
+                        model.listTN = ct.get_QLTN_CHITIET_TN_by_MATBTN(model.ma_tbtn, model.ma_yctn);
                         model.ngay_tao = tb.Rows[i]["NGAY_TAO"] != DBNull.Value ? Convert.ToDateTime(tb.Rows[i]["NGAY_TAO"]) : null;
                         model.nguoi_tao = tb.Rows[i]["NGUOI_TAO"] != DBNull.Value ? tb.Rows[i]["NGUOI_TAO"].ToString() : null;
                         model.ten_loai_thiet_bi = tb.Rows[i]["TEN_LOAI_THIET_BI"] != DBNull.Value ? tb.Rows[i]["TEN_LOAI_THIET_BI"].ToString() : null;

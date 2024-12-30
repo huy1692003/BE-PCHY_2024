@@ -20,4 +20,8 @@ namespace API_PCHY.Models.QLTN.QLTN_CHI_TIET_THI_NGHIEM
         public int? trang_thai_ky { get; set; }
         
     }
+
+
+   
+
 }

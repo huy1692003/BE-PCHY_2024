@@ -195,14 +195,83 @@ namespace APIPCHY.Helpers
 
 
 
+        //public DataTable ExcuteReader(string ProcedureName, params object[] param_list)
+        //{
+        //    DataTable tb = new DataTable();
+        //    try
+        //    {
+        //        OracleCommand cmd = new OracleCommand { CommandType = CommandType.StoredProcedure, CommandText = ProcedureName, Connection = cn };
+        //        Open();
+        //        int paramterInput = (param_list.Length) / 2;
+        //        for (int i = 0; i < paramterInput; i++)
+        //        {
+        //            string paramName = Convert.ToString(param_list[i]);
+        //            object paramValue = param_list[i + paramterInput];
+        //            if (paramName.ToLower().Contains("json"))
+        //            {
+        //                cmd.Parameters.Add(new OracleParameter
+        //                {
+        //                    ParameterName = paramName,
+        //                    OracleDbType = OracleDbType.NVarchar2,
+        //                    Value = paramValue ?? DBNull.Value
+        //                });
+        //            }
+        //            else if (paramName.ToLower().Contains("nclob"))
+        //            {
+        //                cmd.Parameters.Add(new OracleParameter
+        //                {
+        //                    ParameterName = paramName,
+        //                    OracleDbType = OracleDbType.Clob, // Dữ liệu kiểu CLOB
+        //                    Value = paramValue ?? DBNull.Value
+        //                });
+        //            }
+        //            else
+        //            {
+        //                cmd.Parameters.Add(new OracleParameter(paramName, paramValue ?? DBNull.Value));
+        //            }
+        //        }
+
+        //        OracleParameter refCursor = new OracleParameter
+        //        {
+        //            ParameterName = "p_getDB",
+        //            OracleDbType = OracleDbType.RefCursor,
+        //            Direction = ParameterDirection.Output
+        //        };
+        //        cmd.Parameters.Add(refCursor);
+
+
+        //        OracleDataAdapter ad = new OracleDataAdapter(cmd);
+        //        ad.Fill(tb);
+        //        ad.Dispose();
+        //        cmd.Dispose();
+        //        cn.Dispose();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        tb = null;
+        //        // Log lỗi nếu cần
+        //    }
+        //    finally
+        //    {
+        //        Close();
+        //    }
+        //    return tb;
+        //}
         public DataTable ExcuteReader(string ProcedureName, params object[] param_list)
         {
             DataTable tb = new DataTable();
+            OracleCommand cmd = null;
+            OracleDataAdapter ad = null;
+
             try
             {
-                OracleCommand cmd = new OracleCommand { CommandType = CommandType.StoredProcedure, CommandText = ProcedureName, Connection = cn };
-                Open();
-                int paramterInput = (param_list.Length) / 2;
+                // Khởi tạo OracleCommand
+                cmd = new OracleCommand { CommandType = CommandType.StoredProcedure, CommandText = ProcedureName, Connection = cn };
+                Open();  // Mở kết nối nếu chưa mở
+
+                int paramterInput = param_list.Length / 2;
+
+                // Thêm tham số đầu vào
                 for (int i = 0; i < paramterInput; i++)
                 {
                     string paramName = Convert.ToString(param_list[i]);
@@ -231,6 +300,7 @@ namespace APIPCHY.Helpers
                     }
                 }
 
+                // Thêm tham số RefCursor để nhận kết quả
                 OracleParameter refCursor = new OracleParameter
                 {
                     ParameterName = "p_getDB",
@@ -239,12 +309,9 @@ namespace APIPCHY.Helpers
                 };
                 cmd.Parameters.Add(refCursor);
 
-
-                OracleDataAdapter ad = new OracleDataAdapter(cmd);
-                ad.Fill(tb);
-                ad.Dispose();
-                cmd.Dispose();
-                cn.Dispose();
+                // Thực thi và lấy kết quả
+                ad = new OracleDataAdapter(cmd);
+                ad.Fill(tb);  // Điền dữ liệu vào DataTable
             }
             catch (Exception ex)
             {
@@ -253,7 +320,10 @@ namespace APIPCHY.Helpers
             }
             finally
             {
-                Close();
+                // Đảm bảo đóng kết nối và dispose các đối tượng trong finally
+                Close();  // Đóng kết nối
+                cmd?.Dispose();  // Dispose OracleCommand
+                ad?.Dispose();  // Dispose OracleDataAdapter
             }
             return tb;
         }

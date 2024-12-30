@@ -18,11 +18,12 @@ namespace API_PCHY.Models.QLTN.QLTN_YCTN
     {
         DataHelper helper = new DataHelper();
 
-        public bool create_QLTN_YCTN(QLTN_YCTN_Model model)
+        public string create_QLTN_YCTN(QLTN_YCTN_Model model)
         {
+            string Ma_YCTN_Success = "";
             try
             {
-                string result = helper.ExcuteNonQuery("PKG_QLTN_HUY.create_QLTN_YCTN", "p_Error",
+                DataTable ds = helper.ExcuteReader("PKG_QLTN_HUY.create_QLTN_YCTN",
                                                     "p_MA_LOAI_YCTN", "p_MA_YCTN", "p_TEN_YCTN", "p_NGAY_TAO",
                                                     "p_ID_KHACH_HANG", "p_MA_KHACH_HANG", "p_LOAI_TAI_SAN", "p_NOI_DUNG",
                                                     "p_GTDT_TRUOC_THUE", "p_GTDT_THUE", "p_GTDT_SAU_THUE",
@@ -34,12 +35,17 @@ namespace API_PCHY.Models.QLTN.QLTN_YCTN
                                                     model.gtdt_chiet_giam, model.gtdt_sau_chiet_giam, model.ngay_ky_hop_dong,
                                                     model.ngay_xay_ra_su_co, model.file_upload, model.phan_tram_chiet_giam ,model.phan_tram_thue , model.nguoi_tao
                                                     );
+                if (ds != null && ds.Rows.Count > 0)
+                {
 
-                return string.IsNullOrEmpty(result);
+                    Ma_YCTN_Success = ds.Rows[0]["MA_YCTN"] != DBNull.Value ? ds.Rows[0]["MA_YCTN"].ToString() : null;
+                    
+                }
+                return Ma_YCTN_Success;
             }
             catch (Exception)
             {
-                return false;
+                return "";
             }
         }
 
@@ -63,7 +69,7 @@ namespace API_PCHY.Models.QLTN.QLTN_YCTN
                                                         model.ma_khach_hang, model.loai_tai_san, model.noi_dung, model.gtdt_truoc_thue,
                                                         model.gtdt_thue, model.gtdt_sau_thue, model.gtdt_chiet_giam, model.gtdt_sau_chiet_giam,
                                                         model.ngay_ky_hop_dong, model.ngay_xay_ra_su_co, model.file_upload,
-                                                        model.phan_tram_chiet_giam, model.phan_tram_thue, model.nguoi_sua,log);
+                                                        model.phan_tram_chiet_giam, model.phan_tram_thue, model.nguoi_sua, log == null ? "":log);
                 return string.IsNullOrEmpty(result); // Nếu không có lỗi, trả về true
             }
             catch (Exception)

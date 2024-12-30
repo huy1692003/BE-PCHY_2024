@@ -22,8 +22,8 @@ namespace API_PCHY.Controllers.QLTN.QLTN_YCTN
         {
             try
             {
-                bool result = _manager.create_QLTN_YCTN(model);
-                return result ? Ok("Tạo mới thành công") : BadRequest("Tạo mới thất bại");
+                string result = _manager.create_QLTN_YCTN(model);
+                return !string.IsNullOrEmpty(result) ? Ok(result) : BadRequest("Tạo mới thất bại");
             }
             catch (Exception ex)
             {
@@ -45,6 +45,7 @@ namespace API_PCHY.Controllers.QLTN.QLTN_YCTN
                 return BadRequest($"Lỗi: {ex.Message}");
             }
         }
+
         [HttpDelete]
         [Route("Delete/{maYCTN}")]
         public IActionResult Delete( string maYCTN)

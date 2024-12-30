@@ -14,6 +14,8 @@ namespace API_PCHY.Models.QLTN.QLTN_NGUOI_KY
         public string? nguoi_tao { get; set; }
         public DateTime? ngay_sua { get; set; }
         public string? nguoi_sua { get; set; }
+        public string? ten_dang_nhap { get; set; }
+        public string? ho_ten { get; set; }
         public DateTime? ngay_tu_choi { get; set; }
     }
 }
