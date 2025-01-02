@@ -17,6 +17,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
         DataHelper db = new DataHelper();
         QLTN_NGUOI_KY_Manager nk = new QLTN_NGUOI_KY_Manager();
         DM_DONVI_Manager dv = new DM_DONVI_Manager();
+        QLTN_CHI_TIET_THI_NGHIEM_Manager cttn = new QLTN_CHI_TIET_THI_NGHIEM_Manager();
         private List<string> getListTenDonVi(string list)
         {
             // Chuyển chuỗi JSON thành mảng
@@ -76,7 +77,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
                         doc.nguoi_tao = row["NGUOI_TAO"]?.ToString();
                         doc.rownum = row["TOTAL"] != DBNull.Value ? int.Parse(row["TOTAL"].ToString()) : 0;
                         doc.list_NguoiKy = nk.getNguoiKyByMa_CTTN(doc.ma_chitiet_tn);
-                      
+                        doc.chi_tiet_tn=cttn.get_QLTN_CHITIET_TN_ByMA_CTTN(doc.ma_chitiet_tn);
 
                         // Cập nhật giá trị tổng số bản ghi
                         totalRecord = doc.rownum ?? 0;
@@ -91,6 +92,23 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
                 Console.WriteLine("Error: " + ex.Message);
                 // Log exception nếu cần thiết
                 return new List<Document_Model>(); ;
+            }
+        }
+
+
+        public bool update_TrangThai_Ky (ReqUpdateKySo req)
+        {
+            try
+            {
+                string result = db.ExcuteNonQuery("PKG_QLTN_HUY.update_TrangThai_Ky", "p_Error",
+                    "p_ID", "p_MaCTTN", "p_ID_NGUOI_KY", "p_NHOM_NGUOI_KY", "p_TRANG_THAI", "p_LY_DO_TUCHOI",
+                    req.Id,req.MaCTTN,req.IdNguoiKy,req.NhomNguoiKy, req.TrangThai, req.TrangThai == -1 ? req.LyDoTuChoi : DBNull.Value
+                );
+                return string.IsNullOrEmpty(result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi cập nhật trạng thái ký: {ex.Message}");
             }
         }
     }

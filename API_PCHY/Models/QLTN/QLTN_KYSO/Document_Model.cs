@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using API_PCHY.Models.QLTN.QLTN_CHI_TIET_THI_NGHIEM;
 using API_PCHY.Models.QLTN.QLTN_NGUOI_KY;
 using iTextSharp.text;
 
@@ -22,6 +23,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
         public string? nguoi_tao { get; set; }        // CT.NGUOI_TAO
         public int? rownum { get; set; }             // ROW_NUMBER()
         public List<QLTN_NGUOI_KY_Model>? list_NguoiKy { get; set; }
+        public QLTN_CHI_TIET_THI_NGHIEM_Model? chi_tiet_tn { get; set; }
     }
 
     public class SearchParamDocument
@@ -47,5 +49,25 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
             this.Page=1;
             this.PageSize=10;
         }
+    }
+
+    public class ReqUpdateKySo
+    {
+        public int Id { get; set; }
+
+        // Mã chi tiết thí nghiệm
+        public string MaCTTN{ get; set; }
+
+        // ID người ký
+        public string IdNguoiKy { get; set; }
+
+        // Nhóm người ký
+        public int NhomNguoiKy { get; set; }
+
+        // Trạng thái ký (1: đồng ý ký, -1: từ chối ký)
+        public int TrangThai { get; set; }
+
+        // Lý do từ chối (nếu trạng thái = -1)
+        public string LyDoTuChoi { get; set; }
     }
 }

@@ -18,6 +18,7 @@ namespace API_PCHY.Models.QLTN.QLTN_CHI_TIET_THI_NGHIEM
         public string? nguoi_sua { get; set; }
         public int? lanthu { get; set; }
         public int? trang_thai_ky { get; set; }
+        public int? nhomky_hientai { get; set; }
         
     }
 

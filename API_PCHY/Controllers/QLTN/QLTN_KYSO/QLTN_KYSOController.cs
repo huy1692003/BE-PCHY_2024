@@ -46,9 +46,23 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
             try
             {
                 SmartCA769 helper=new SmartCA769();
-                helper._signSmartCAOFFICE();
+                helper._signSmartCAPDF();
                 return Ok("xong");
 
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+
+        [Route("update_TrangThai_Ky")]
+        [HttpPost]
+        public IActionResult insert([FromBody] ReqUpdateKySo model)
+        {
+            try
+            {
+                var check = manager.update_TrangThai_Ky(model);
+
+                return check? Ok("Kỹ hoàn tất") : BadRequest("Có lỗi xảy ra");
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }

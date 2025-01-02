@@ -117,5 +117,41 @@ namespace API_PCHY.Models.QLTN.QLTN_CHI_TIET_THI_NGHIEM
                 throw ex;
             }
         }
+
+        public QLTN_CHI_TIET_THI_NGHIEM_Model get_QLTN_CHITIET_TN_ByMA_CTTN(string Ma_CTTN)
+        {
+            try
+            {
+                DataTable ds = helper.ExcuteReader("PKG_QLTN_HUY.get_QLTN_CHITIET_TN_ByMA_CTTN",
+                                                   "p_MA_CTTN", Ma_CTTN);
+
+                if (ds != null && ds.Rows.Count > 0)
+                {
+                    QLTN_CHI_TIET_THI_NGHIEM_Model model = new QLTN_CHI_TIET_THI_NGHIEM_Model();
+                    model.id = ds.Rows[0]["ID"] != DBNull.Value ? int.Parse(ds.Rows[0]["ID"].ToString()) : null;
+                    model.ma_chi_tiet_tn = ds.Rows[0]["MA_CHI_TIET_TN"] != DBNull.Value ? ds.Rows[0]["MA_CHI_TIET_TN"].ToString() : null;
+                    model.ma_tbtn = ds.Rows[0]["MA_TBTN"] != DBNull.Value ? ds.Rows[0]["MA_TBTN"].ToString() : null;
+                    model.so_luong = ds.Rows[0]["SO_LUONG"] != DBNull.Value ? int.Parse(ds.Rows[0]["SO_LUONG"].ToString()) : null;
+                    model.ma_loai_bb = ds.Rows[0]["MA_LOAI_BB"] != DBNull.Value ? ds.Rows[0]["MA_LOAI_BB"].ToString() : null;
+                    model.ma_yctn = ds.Rows[0]["MA_YCTN"] != DBNull.Value ? ds.Rows[0]["MA_YCTN"].ToString() : null;
+                    model.file_upload = ds.Rows[0]["FILE_UPLOAD"] != DBNull.Value ? ds.Rows[0]["FILE_UPLOAD"].ToString() : null;
+                    model.ngay_tt_tn = ds.Rows[0]["NGAY_TT_TN"] != DBNull.Value ? DateTime.Parse(ds.Rows[0]["NGAY_TT_TN"].ToString()) : null;
+                    model.ngay_tao = ds.Rows[0]["NGAY_TAO"] != DBNull.Value ? DateTime.Parse(ds.Rows[0]["NGAY_TAO"].ToString()) : null;
+                    model.nguoi_tao = ds.Rows[0]["NGUOI_TAO"] != DBNull.Value ? ds.Rows[0]["NGUOI_TAO"].ToString() : null;
+                    model.ngay_sua = ds.Rows[0]["NGAY_SUA"] != DBNull.Value ? DateTime.Parse(ds.Rows[0]["NGAY_SUA"].ToString()) : null;
+                    model.nguoi_sua = ds.Rows[0]["NGUOI_SUA"] != DBNull.Value ? ds.Rows[0]["NGUOI_SUA"].ToString() : null;
+                    model.lanthu = ds.Rows[0]["LANTHU"] != DBNull.Value ? int.Parse(ds.Rows[0]["LANTHU"].ToString()) : null;
+                    model.trang_thai_ky = ds.Rows[0]["TRANG_THAI_KY"] != DBNull.Value ? int.Parse(ds.Rows[0]["TRANG_THAI_KY"].ToString()) : null;
+                    model.nhomky_hientai = ds.Rows[0]["NHOM_KY_HIEN_TAI"] != DBNull.Value ? int.Parse(ds.Rows[0]["NHOM_KY_HIEN_TAI"].ToString()) : null;
+
+                    return model;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

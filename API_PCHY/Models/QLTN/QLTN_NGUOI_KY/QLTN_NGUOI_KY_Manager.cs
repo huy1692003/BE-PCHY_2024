@@ -43,7 +43,7 @@ namespace API_PCHY.Models.QLTN.QLTN_NGUOI_KY
                         model.id = tb.Rows[i]["ID"] != DBNull.Value ? int.Parse(tb.Rows[i]["ID"].ToString()) : null;
                         model.trang_thai_ky = tb.Rows[i]["TRANG_THAI_KY"] != DBNull.Value ? int.Parse(tb.Rows[i]["TRANG_THAI_KY"].ToString()) : null;
                         model.nhom_nguoi_ky = tb.Rows[i]["NHOM_NGUOI_KY"] != DBNull.Value ? int.Parse(tb.Rows[i]["NHOM_NGUOI_KY"].ToString()) : null;
-                        model.ly_do_tu_choi = tb.Rows[i]["LYDO_TUCHOI"] != DBNull.Value ? tb.Rows[i]["LY_DO_TU_CHOI"].ToString() : null;
+                        model.ly_do_tu_choi = tb.Rows[i]["LYDO_TUCHOI"] != DBNull.Value ? tb.Rows[i]["LYDO_TUCHOI"].ToString() : null;
                         model.ten_dang_nhap = tb.Rows[i]["TEN_DANG_NHAP"] != DBNull.Value ? tb.Rows[i]["TEN_DANG_NHAP"].ToString() : null;
                         model.ho_ten = tb.Rows[i]["HO_TEN"] != DBNull.Value ? tb.Rows[i]["HO_TEN"].ToString() : null;
                         model.ma_chi_tiet_tn = tb.Rows[i]["MA_CHI_TIET_TN"] != DBNull.Value ? tb.Rows[i]["MA_CHI_TIET_TN"].ToString() : null;
