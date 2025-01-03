@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using API_PCHY.Models.QLTN.QLTN_KYSO;
 using API_PCHY.Models.QLTN.QLTN_NGUOI_KY;
-using API_PCHY.Models.SMART_CA;
+//using API_PCHY.Models.SMART_CA;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,20 +38,20 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        [Route("create_sign")]
-        [HttpPost]
-        public async Task<IActionResult> create_sign()
-        {
+        //[Route("create_sign")]
+        //[HttpPost]
+        //public async Task<IActionResult> create_sign()
+        //{
            
-            try
-            {
-                SmartCA769 helper=new SmartCA769();
-                helper._signSmartCAPDF();
-                return Ok("xong");
+        //    try
+        //    {
+        //        SmartCA769 helper=new SmartCA769();
+        //        helper._signSmartCAPDF();
+        //        return Ok("xong");
 
-            }
-            catch (Exception ex) { return BadRequest(ex.Message); }
-        }
+        //    }
+        //    catch (Exception ex) { return BadRequest(ex.Message); }
+        //}
 
 
         [Route("update_TrangThai_Ky")]

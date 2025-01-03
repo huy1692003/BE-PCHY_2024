@@ -75,7 +75,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
                         doc.ma_chitiet_tn = row["MA_CHI_TIET_TN"]?.ToString();
                         doc.file_upload = row["FILE_UPLOAD"]?.ToString();
                         doc.nguoi_tao = row["NGUOI_TAO"]?.ToString();
-                        doc.rownum = row["TOTAL"] != DBNull.Value ? int.Parse(row["TOTAL"].ToString()) : 0;
+                        doc.rownum = row["TOTAL_COUNT"] != DBNull.Value ? int.Parse(row["TOTAL_COUNT"].ToString()) : 0;
                         doc.list_NguoiKy = nk.getNguoiKyByMa_CTTN(doc.ma_chitiet_tn);
                         doc.chi_tiet_tn=cttn.get_QLTN_CHITIET_TN_ByMA_CTTN(doc.ma_chitiet_tn);
 
