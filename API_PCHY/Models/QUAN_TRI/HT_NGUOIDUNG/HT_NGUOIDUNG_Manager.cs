@@ -167,75 +167,63 @@ namespace APIPCHY_PhanQuyen.Models.QLTN.HT_NGUOIDUNG
 
 
         //them nguoi dung
-        public HT_NGUOIDUNG_Model Insert_QLTN_NGUOI_DUNG(HT_NGUOIDUNG_Model data)
+        public string Insert_QLTN_NGUOI_DUNG(HT_NGUOIDUNG_Model data)
         {
-            string strErr = "";
-            OracleConnection cn = new ConnectionOracle().getConnection();
-            cn.Open();
-            OracleCommand cmd = new OracleCommand();
-            cmd.Connection = cn;
-            OracleTransaction transaction;
-            transaction = cn.BeginTransaction();
-            cmd.Transaction = transaction;
-
             try
             {
+                // Hash mật khẩu người dùng
                 string hashPassword = PasswordHasher.HashString(data.mat_khau);
-                cmd.Parameters.Clear();
-                cmd.Connection = cn;
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = @"PKG_QLTN_QUANTRI.insert_HT_NGUOIDUNG";
-                cmd.Parameters.Add("p_ID", OracleDbType.Varchar2).Value = Guid.NewGuid().ToString();
-                cmd.Parameters.Add("p_DM_DONVI_ID", OracleDbType.Varchar2).Value = data.dm_donvi_id;
-                cmd.Parameters.Add("p_DM_PHONGBAN_ID", OracleDbType.Varchar2).Value = data.dm_phongban_id;
-                cmd.Parameters.Add("p_DM_KIEUCANBO_ID", OracleDbType.Varchar2).Value = data.dm_kieucanbo_id;
-                cmd.Parameters.Add("p_DM_CHUCVU_ID", OracleDbType.Varchar2).Value = data.dm_chucvu_id;
-                cmd.Parameters.Add("p_TEN_DANG_NHAP", OracleDbType.Varchar2).Value = data.ten_dang_nhap;
-                cmd.Parameters.Add("p_MAT_KHAU", OracleDbType.Varchar2).Value = hashPassword;
-                cmd.Parameters.Add("p_HO_TEN", OracleDbType.Varchar2).Value = data.ho_ten;
-                cmd.Parameters.Add("p_EMAIL", OracleDbType.Varchar2).Value = data.email;
-                cmd.Parameters.Add("p_LDAP", OracleDbType.Varchar2).Value = data.ldap;
-                cmd.Parameters.Add("p_TRANG_THAI", OracleDbType.Int32).Value = data.trang_thai;
-                cmd.Parameters.Add("p_NGAY_TAO", OracleDbType.Date).Value = data.ngay_tao != DateTime.MinValue ? (object)data.ngay_tao : DBNull.Value;
-                cmd.Parameters.Add("p_NGUOI_TAO", OracleDbType.Varchar2).Value = data.nguoi_tao;
-                cmd.Parameters.Add("p_NGAY_CAP_NHAT", OracleDbType.Date).Value = data.ngay_cap_nhat != DateTime.MinValue ? (object)data.ngay_cap_nhat : DBNull.Value;
-                cmd.Parameters.Add("p_NGUOI_CAP_NHAT", OracleDbType.Varchar2).Value = data.nguoi_cap_nhat;
-                cmd.Parameters.Add("p_SO_DIEN_THOAI", OracleDbType.Varchar2).Value = data.so_dien_thoai;
-                cmd.Parameters.Add("p_GIOI_TINH", OracleDbType.Int32).Value = data.gioi_tinh;
-                cmd.Parameters.Add("p_SO_CMND", OracleDbType.Varchar2).Value = data.so_cmnd;
-                cmd.Parameters.Add("p_TRANG_THAI_DONG_BO", OracleDbType.Int32).Value = data.trang_thai_dong_bo;
-                cmd.Parameters.Add("p_DB_TAIKHOANDANGNHAP", OracleDbType.Varchar2).Value = data.db_taikhoandangnhap;
-                cmd.Parameters.Add("p_DB_NGAY", OracleDbType.Date).Value = data.db_ngay != DateTime.MinValue ? (object)data.db_ngay : DBNull.Value;
-                cmd.Parameters.Add("p_DM_DONVI_LAMVIEC_ID", OracleDbType.Varchar2).Value = data.dm_donvi_lamviec_id;
-                cmd.Parameters.Add("p_HT_VAITRO_ID", OracleDbType.Varchar2).Value = data.ht_vaitro_id;
-                cmd.Parameters.Add("p_SIGN_ALIAS", OracleDbType.Varchar2).Value = data.sign_alias;
-                cmd.Parameters.Add("p_SIGN_USERNAME", OracleDbType.Varchar2).Value = data.sign_username;
-                cmd.Parameters.Add("p_SIGN_PASSWORD", OracleDbType.Varchar2).Value = data.sign_password;
-                cmd.Parameters.Add("p_HRMS_TYPE", OracleDbType.Int32).Value = data.hrms_type; // Đảm bảo giá trị là số nguyên
-                cmd.Parameters.Add("p_SIGN_IMAGE", OracleDbType.Varchar2).Value = data.sign_image;
-                cmd.Parameters.Add("p_ANHCHUKYNHAY", OracleDbType.Varchar2).Value = data.anhchukynhay;
-                cmd.Parameters.Add("p_ROLEID", OracleDbType.Varchar2).Value = data.roleid;
-                cmd.Parameters.Add("p_PHONG_BAN", OracleDbType.Varchar2).Value = data.phong_ban;
-                cmd.Parameters.Add("p_ANHDAIDIEN", OracleDbType.Varchar2).Value = data.anhdaidien;
-                cmd.Parameters.Add("p_VALUE_TOKEN", OracleDbType.Varchar2).Value = data.value_token;
-                cmd.Parameters.Add("p_Error", OracleDbType.Varchar2, 4000).Direction = ParameterDirection.Output;
 
-                cmd.ExecuteNonQuery();
-                transaction.Commit();
-                return data;
+                // Sử dụng helper để thực thi stored procedure
+                string result = helper.ExcuteNonQuery(
+                    "PKG_QLTN_QUANTRI.insert_HT_NGUOIDUNG", "p_Error",
+                    "p_ID", "p_DM_DONVI_ID", "p_DM_PHONGBAN_ID", "p_DM_KIEUCANBO_ID", "p_DM_CHUCVU_ID",
+                    "p_TEN_DANG_NHAP", "p_MAT_KHAU", "p_HO_TEN", "p_EMAIL", "p_LDAP", "p_TRANG_THAI",
+                    "p_NGAY_TAO", "p_NGUOI_TAO", "p_NGAY_CAP_NHAT", "p_NGUOI_CAP_NHAT", "p_SO_DIEN_THOAI",
+                    "p_GIOI_TINH", "p_SO_CMND", "p_TRANG_THAI_DONG_BO", "p_DB_TAIKHOANDANGNHAP", "p_DB_NGAY",
+                    "p_DM_DONVI_LAMVIEC_ID", "p_HT_VAITRO_ID", "p_SIGN_ALIAS", "p_SIGN_USERNAME", "p_SIGN_PASSWORD",
+                    "p_HRMS_TYPE", "p_SIGN_IMAGE", "p_ANHCHUKYNHAY", "p_ROLEID", "p_PHONG_BAN", "p_ANHDAIDIEN",
+                    "p_VALUE_TOKEN",
+                    data.id ?? Guid.NewGuid().ToString(),
+                    data.dm_donvi_id,
+                    data.dm_phongban_id,
+                    data.dm_kieucanbo_id,
+                    data.dm_chucvu_id,
+                    data.ten_dang_nhap,
+                    hashPassword,
+                    data.ho_ten,
+                    data.email,
+                    data.ldap,
+                    data.trang_thai,
+                    data.ngay_tao != DateTime.MinValue ? (object)data.ngay_tao : DBNull.Value,
+                    data.nguoi_tao,
+                    data.ngay_cap_nhat != DateTime.MinValue ? (object)data.ngay_cap_nhat : DBNull.Value,
+                    data.nguoi_cap_nhat,
+                    data.so_dien_thoai,
+                    data.gioi_tinh,
+                    data.so_cmnd,
+                    data.trang_thai_dong_bo,
+                    data.db_taikhoandangnhap,
+                    data.db_ngay != DateTime.MinValue ? (object)data.db_ngay : DBNull.Value,
+                    data.dm_donvi_lamviec_id,
+                    data.ht_vaitro_id,
+                    data.sign_alias,
+                    data.sign_username,
+                    data.sign_password,
+                    data.hrms_type,
+                    data.sign_image,
+                    data.anhchukynhay,
+                    data.roleid,
+                    data.phong_ban,
+                    data.anhdaidien,
+                    data.value_token
+                );
+
+                return result;
             }
-
-
             catch (Exception ex)
             {
-                throw ex;
-            }
-            finally
-            {
-                if (cn.State != ConnectionState.Closed)
-                {
-                    cn.Close();
-                }
+                throw new Exception("Lỗi khi thực thi stored procedure: " + ex.Message);
             }
         }
 

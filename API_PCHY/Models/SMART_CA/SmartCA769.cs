@@ -19,6 +19,9 @@ using SignService.Common.HashSignature.Pdf;
 using SignService.Common.HashSignature.Xml;
 using SmartCATHNetCore;
 using Microsoft.AspNetCore.Hosting;
+using static API_PCHY.Models.SMART_CA.Model_SMART_CA;
+using APIPCHY.Helpers;
+using APIPCHY_PhanQuyen.Models.QLKC.DM_PHONGBAN;
 
 namespace API_PCHY.Models.SMART_CA
 {
@@ -28,38 +31,48 @@ namespace API_PCHY.Models.SMART_CA
         private static string client_id = "4b0c-638712580414678530.apps.smartcaapi.com";
         private static string client_secret = "ODFlMTAxYjE-NjYxOS00YjBj";
         private readonly IWebHostEnvironment _webHostEnvironment;
+        DataHelper helper = new DataHelper();
 
         public SmartCA769(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
-        public void _signSmartCA(RequestSign req)
-        {
-            var userCert = _getAccountCert("https://gwsca.vnpt.vn/sca/sp769/v1/credentials/get_certificate",req.userSign);
 
+        //Hàm ký số 
+        public bool _signSmartCA(RequestSign req , out string relativePathOutput)
+        {
+            relativePathOutput = null;
+            // Lấy chứng chỉ người dùng
+            var userCert = _getAccountCert("https://gwsca.vnpt.vn/sca/sp769/v1/credentials/get_certificate", req.userSign);
+
+            // Kiểm tra nếu không lấy được chứng chỉ
             if (userCert == null)
             {
-                return;
+                return false;
             }
-            String certBase64 = userCert.cert_data;
 
-              /// Đường dẫn đến file cần ký và sẽ lưu trực tiếp lại vào đường dẫn cũ              
-            string pathFileInput=Path.Combine(_webHostEnvironment.WebRootPath, req.pathFileIn_Out);
+            string certBase64 = userCert.cert_data;
+            
+            string pathFileInput = req.pathFileIn_Out.StartsWith("/")
+            ? Path.Combine(_webHostEnvironment.WebRootPath, req.pathFileIn_Out.TrimStart('/'))
+            : Path.Combine(_webHostEnvironment.WebRootPath, req.pathFileIn_Out);
             string pathFileOutput = Path.ChangeExtension(pathFileInput, ".pdf");
-
 
             byte[] unsignData = null;
             try
             {
+                // Đọc nội dung file đầu vào
                 unsignData = File.ReadAllBytes(pathFileInput);
             }
             catch (Exception ex)
             {
-                return;
+                // Ghi log lỗi nếu không đọc được file
+                return false;
             }
 
             string extension = Path.GetExtension(pathFileInput)?.ToLower();
 
+            // Xác định loại file để tạo signer tương ứng
             string signerType = extension switch
             {
                 ".pdf" => HashSignerFactory.PDF,
@@ -71,19 +84,19 @@ namespace API_PCHY.Models.SMART_CA
             // Tạo signer từ HashSignerFactory
             IHashSigner signer = HashSignerFactory.GenerateSigner(unsignData, certBase64, null, signerType);
 
+            // Đặt thuật toán hash
             signer.SetHashAlgorithm(MessageDigestAlgorithm.SHA256);
-
 
             var hashValue = signer.GetSecondHashAsBase64();
 
+            // Chuyển đổi hashValue thành chuỗi ký
             var data_to_be_sign = BitConverter.ToString(Convert.FromBase64String(hashValue)).Replace("-", "").ToLower();
 
             var transactionID = Guid.NewGuid().ToString();
 
-            //DataSign dataSign = _sign("https://rmgateway.vnptit.vn/sca/sp769/v1/signatures/sign", data_to_be_sign, userCert.serial_number);
-            DataSign dataSign = _sign("https://gwsca.vnpt.vn/sca/sp769/v1/signatures/sign", data_to_be_sign,req.userSign,req.descSign,transactionID);
-
-            //Console.ReadKey();
+            var reqSign = new ReqSign();
+            // Gửi yêu cầu ký dữ liệu
+            DataSign dataSign = _sign("https://gwsca.vnpt.vn/sca/sp769/v1/signatures/sign", data_to_be_sign, req.userSign, req.descSign, transactionID ,out reqSign);
 
             var count = 0;
             var isConfirm = false;
@@ -91,9 +104,9 @@ namespace API_PCHY.Models.SMART_CA
             var mapping = "";
             DataTransaction transactionStatus;
 
+            // Kiểm tra trạng thái ký dữ liệu
             while (count < 30 && !isConfirm)
             {
-                //transactionStatus = _getStatus(string.Format("https://rmgateway.vnptit.vn/sca/sp769/v1/signatures/sign/{0}/status", dataSign.transaction_id));
                 transactionStatus = _getStatus(string.Format("https://gwsca.vnpt.vn/sca/sp769/v1/signatures/sign/{0}/status", dataSign.transaction_id));
                 if (transactionStatus.signatures != null)
                 {
@@ -103,34 +116,72 @@ namespace API_PCHY.Models.SMART_CA
                 }
                 else
                 {
-                    count = count + 1;
-                    Thread.Sleep(10000);
+                    count++;
+                    Thread.Sleep(10000); // Chờ trước khi thử lại
                 }
             }
-            if (!isConfirm)
+
+            // Nếu không nhận được chữ ký, trả về thất bại
+            if (!isConfirm || string.IsNullOrEmpty(datasigned))
             {
-                return;
+                insert_LOG_KYSO(reqSign, "0", req.idUserApp);
+                return false;
             }
 
-            if (string.IsNullOrEmpty(datasigned))
-            {
-                return;
-            }
+            // Kiểm tra tính hợp lệ của chữ ký
             if (!signer.CheckHashSignature(datasigned))
             {
-                return;
+                insert_LOG_KYSO(reqSign, "0", req.idUserApp);
+                return false;
+
             }
-            // ------------------------------------------------------------------------------------------
 
-            // 3. Package external signature to signed file
+            // Package external signature to signed file
             byte[] signed = signer.Sign(datasigned);
-            File.WriteAllBytes(pathFileOutput, signed);
+            try
+            {
+                // Ghi file đã ký vào đường dẫn output
+                File.WriteAllBytes(pathFileOutput, signed);
 
+                // Tạo đường dẫn tương đối từ `wwwroot`
+                relativePathOutput = "/" + Path.GetRelativePath(_webHostEnvironment.WebRootPath, pathFileOutput).Replace("\\", "/");
+                insert_LOG_KYSO(reqSign, "1",req.idUserApp );
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi nếu không ghi được file
+                return false;
+            }
         }
 
-       
-      
-        private static UserCertificate _getAccountCert(String uri, SigningUser inforUser )
+
+        /// <summary>
+        /// Hàm ghi log ký số vào database
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="status"></param>
+        /// <param name="userID_app"></param>
+        /// <returns></returns>
+        public string insert_LOG_KYSO(ReqSign req , string status ,string userID_app)
+        {
+            try
+            {
+                string result = helper.ExcuteNonQuery("PKG_QLTN_QUANTRI.insert_LOG_KYSO", "p_Error",
+                    "p_TRANSACTION_ID", "p_SP_PASSWORD", "p_USER_ID_SIGN", "p_TRANSACTION_DESC", "p_SERIAL_NUMBER"
+                    , "p_SP_ID", "p_STATUS_SIGN", "p_USER_ID_APP",
+                    req.transaction_id,req.sp_password,req.user_id,req.transaction_desc,req.serial_number,req.sp_id,status,userID_app
+                );
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //Lấy thông tin chứng thư của người dùng
+        private static UserCertificate _getAccountCert(String uri, SigningUser inforUser)
         {
             var response = Query(new ReqGetCert
             {
@@ -150,7 +201,7 @@ namespace API_PCHY.Models.SMART_CA
                 }
                 else if (res.data.user_certificates.Count() > 1)
                 {
-                   
+
                     String certIndex = Console.ReadLine();
                     int certIn;
                     bool isNumber = int.TryParse(certIndex, out certIn);
@@ -175,7 +226,8 @@ namespace API_PCHY.Models.SMART_CA
 
         }
 
-        private static DataSign _sign(String uri, string data_to_be_signed, SigningUser user , String descSign, string transactionID)
+        //Gửi request ký số
+        private static DataSign _sign(String uri, string data_to_be_signed, SigningUser user, String descSign, string transactionID , out ReqSign reqS)
         {
 
 
@@ -186,21 +238,22 @@ namespace API_PCHY.Models.SMART_CA
             sign_file.file_type = "pdf";
             sign_file.sign_type = "hash";
             sign_files.Add(sign_file);
-            var response = Query(new ReqSign
+            var req = new ReqSign
             {
                 sp_id = client_id,
                 sp_password = client_secret,
                 user_id = user.userID,
-                transaction_id = transactionID,
                 transaction_desc = descSign,
+                transaction_id = transactionID,
                 sign_files = sign_files,
-                serial_number = user.serial_number,
-
-            }, uri);
+                serial_number = user.serial_number
+            };
+            reqS = req;
+            var response = Query(req, uri);
             if (response != null)
             {
-                ResSign req = JsonConvert.DeserializeObject<ResSign>(response);
-                return req.data;
+                ResSign res = JsonConvert.DeserializeObject<ResSign>(response);
+                return res.data;
             }
             return null;
         }
@@ -256,101 +309,6 @@ namespace API_PCHY.Models.SMART_CA
             return null;
         }
     }
-    public class ResStatus
-    {
-        public int status_code { get; set; }
-        public string message { get; set; }
-        public DataTransaction data { get; set; }
-    }
 
-    public class DataTransaction
-    {
-        public string transaction_id { get; set; }
-        public List<Signature> signatures { get; set; }
-    }
-
-    public class Signature
-    {
-        public string doc_id { get; set; }
-        public string signature_value { get; set; }
-        public object timestamp_signature { get; set; }
-    }
-
-    public class ReqGetCert
-    {
-        public string sp_id { get; set; }
-        public string sp_password { get; set; }
-        public string user_id { get; set; }
-        public string serial_number { get; set; }
-        public string transaction_id { get; set; }
-    }
-
-    public class GetCertData
-    {
-        public List<UserCertificate> user_certificates { get; set; }
-    }
-    public class UserCertificate
-    {
-        public string service_type { get; set; }
-        public string service_name { get; set; }
-        public string cert_id { get; set; }
-        public string cert_status { get; set; }
-        public string serial_number { get; set; }
-        public string cert_subject { get; set; }
-        public DateTime cert_valid_from { get; set; }
-        public DateTime cert_valid_to { get; set; }
-        public string cert_data { get; set; }
-        public ChainData chain_data { get; set; }
-        public string transaction_id { get; set; }
-    }
-    public class ChainData
-    {
-        public string ca_cert { get; set; }
-        public object root_cert { get; set; }
-    }
-
-    public class ResGetCert
-    {
-        public int status_code { get; set; }
-        public string message { get; set; }
-        public GetCertData data { get; set; }
-    }
-
-    public class DataSign
-    {
-        public string transaction_id { get; set; }
-        public string tran_code { get; set; }
-    }
-    public class SignFile
-    {
-        public string data_to_be_signed { get; set; }
-        public string doc_id { get; set; }
-        public string file_type { get; set; }
-        public string sign_type { get; set; }
-    }
-
-    public class ReqSign
-    {
-        public string sp_id { get; set; }
-        public string sp_password { get; set; }
-        public string user_id { get; set; }
-        public string transaction_desc { get; set; }
-        public string transaction_id { get; set; }
-        public List<SignFile> sign_files { get; set; }
-        public string serial_number { get; set; }
-    }
-
-    public class ResSign
-    {
-        public int status_code { get; set; }
-        public string message { get; set; }
-        public DataSign data { get; set; }
-    }
-
-    public class SigningUser
-    {
-        public string userID { get; set; }  
-        public string serial_number { get; set; }  
-    }
 
 }

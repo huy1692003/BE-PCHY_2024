@@ -8,11 +8,15 @@ using API_PCHY.Models.QLTN.QLTN_CHI_TIET_THI_NGHIEM;
 using API_PCHY.Models.QLTN.QLTN_NGUOI_KY;
 using APIPCHY_PhanQuyen.Models.QLTN.DM_DONVI;
 using Newtonsoft.Json;
+using API_PCHY.Models.SMART_CA;
+using Microsoft.AspNetCore.Hosting;
 
 namespace API_PCHY.Models.QLTN.QLTN_KYSO
 {
     public class QLTN_KYSO_Manager
     {
+
+       
 
         DataHelper db = new DataHelper();
         QLTN_NGUOI_KY_Manager nk = new QLTN_NGUOI_KY_Manager();
@@ -40,7 +44,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
 
         public List<Document_Model>? SEARCH_VANBAN(Paginage paginate, SearchParamDocument search, out int totalRecord)
         {
-            totalRecord = 2;
+            totalRecord = 0;
             try
             {
                 // Xử lý ngày bắt đầu và kết thúc nếu không có giá trị
@@ -51,7 +55,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
 
                 // Thực hiện gọi stored procedure và lấy dữ liệu trả về
                 DataTable ds = db.ExcuteReader("PKG_QLTN_HUY.SEARCH_VANBAN", "P_KEYWORD", "P_NGAYBATDAU", "P_NGAYKETTHUC", "P_STATUS_DOCUMENT", "P_TIEN_TRINH_KYSO", "P_USER_ID", "P_DON_VI_THUC_HIEN", "P_ID_LOAI_BIEN_BAN", "P_PAGE", "P_PAGESIZE",
-                                                                             search.Keyword,startDate,endDate,search.Status_Document,search.TienTrinhKySo,search.UserId,search.DonViThucHien,search.IdLoaiBienBan,paginate.Page,paginate.PageSize);
+                                                                             search.Keyword, startDate, endDate, search.Status_Document, search.TienTrinhKySo, search.UserId, search.DonViThucHien, search.IdLoaiBienBan, paginate.Page, paginate.PageSize);
 
                 List<Document_Model> documents = new List<Document_Model>();
                 //Kiểm tra dữ liệu trả về
@@ -60,7 +64,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
 
                     foreach (DataRow row in ds.Rows)
                     {
-                        
+
                         Document_Model doc = new Document_Model();
                         doc.ten_yctn = row["TEN_YCTN"]?.ToString();
                         doc.ma_yctn = row["MA_YCTN"]?.ToString();
@@ -77,7 +81,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
                         doc.nguoi_tao = row["NGUOI_TAO"]?.ToString();
                         doc.rownum = row["TOTAL_COUNT"] != DBNull.Value ? int.Parse(row["TOTAL_COUNT"].ToString()) : 0;
                         doc.list_NguoiKy = nk.getNguoiKyByMa_CTTN(doc.ma_chitiet_tn);
-                        doc.chi_tiet_tn=cttn.get_QLTN_CHITIET_TN_ByMA_CTTN(doc.ma_chitiet_tn);
+                        doc.chi_tiet_tn = cttn.get_QLTN_CHITIET_TN_ByMA_CTTN(doc.ma_chitiet_tn);
 
                         // Cập nhật giá trị tổng số bản ghi
                         totalRecord = doc.rownum ?? 0;
@@ -96,14 +100,31 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
         }
 
 
-        public bool update_TrangThai_Ky (ReqUpdateKySo req)
+        public bool update_TrangThai_Ky(ReqUpdateKySo req , IWebHostEnvironment web)
         {
+
+            string result = "";
             try
             {
-                string result = db.ExcuteNonQuery("PKG_QLTN_HUY.update_TrangThai_Ky", "p_Error",
-                    "p_ID", "p_MaCTTN", "p_ID_NGUOI_KY", "p_NHOM_NGUOI_KY", "p_TRANG_THAI", "p_LY_DO_TUCHOI",
-                    req.Id,req.MaCTTN,req.IdNguoiKy,req.NhomNguoiKy, req.TrangThai, req.TrangThai == -1 ? req.LyDoTuChoi : DBNull.Value
-                );
+                if (req.TrangThai == -1)
+                {
+                   result = db.ExcuteNonQuery("PKG_QLTN_HUY.update_TrangThai_Ky", "p_Error",
+                        "p_ID", "p_MaCTTN", "p_ID_NGUOI_KY", "p_NHOM_NGUOI_KY", "p_TRANG_THAI", "p_LY_DO_TUCHOI", "p_PATH_FILE ",
+                        req.Id, req.MaCTTN, req.IdNguoiKy, req.NhomNguoiKy, req.TrangThai, req.TrangThai == -1 ? req.LyDoTuChoi : DBNull.Value, DBNull.Value
+                    );
+                }
+                else
+                {
+                    SmartCA769 smartCA769 = new SmartCA769(web);
+                    string pathOutput = "";
+                    smartCA769._signSmartCA(req.requestSign, out pathOutput);
+
+                    result = db.ExcuteNonQuery("PKG_QLTN_HUY.update_TrangThai_Ky", "p_Error",
+                       "p_ID", "p_MaCTTN", "p_ID_NGUOI_KY", "p_NHOM_NGUOI_KY", "p_TRANG_THAI", "p_LY_DO_TUCHOI", "p_PATH_FILE",
+                       req.Id, req.MaCTTN, req.IdNguoiKy, req.NhomNguoiKy, req.TrangThai, DBNull.Value , pathOutput
+                   );
+
+                }
                 return string.IsNullOrEmpty(result);
             }
             catch (Exception ex)

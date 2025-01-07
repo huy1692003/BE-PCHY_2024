@@ -19,8 +19,5 @@ namespace APIPCHY_PhanQuyen.Models.QLKC.DM_PHONGBAN
         public DateTime? db_ngay { get; set; }
         public string? ma_dviqly { get; set; }
         public string? ten_dviqly { get; set; }
-
-
-
     }
 }

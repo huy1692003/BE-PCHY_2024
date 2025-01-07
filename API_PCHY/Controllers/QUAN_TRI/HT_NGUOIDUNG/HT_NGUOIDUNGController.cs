@@ -102,7 +102,11 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
         {
             var result = _manager.Insert_QLTN_NGUOI_DUNG(nd);
 
-            return Ok(new { message = "Thêm người dùng thanh công", data = result });
+            if (string.IsNullOrEmpty(result))
+            {
+                return Ok(new { message = "Thêm người dùng thanh công", data = nd });
+            }
+            return BadRequest(new { message = "Thêm người dùng thất bại hãy đổi lại tên tài khoản khác" });
 
 
         }
