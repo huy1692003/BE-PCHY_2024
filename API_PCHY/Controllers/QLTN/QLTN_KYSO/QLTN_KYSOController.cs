@@ -129,11 +129,13 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
 
         [Route("update_TrangThai_Ky")]
         [HttpPost]
-        public IActionResult insert([FromBody] ReqUpdateKySo model)
+        public async Task<IActionResult> insert([FromBody] ReqUpdateKySo model)
         {
             try
             {
-                var check = manager.update_TrangThai_Ky(model,_env);
+                // Lấy URL gốc từ request để tạo đường dẫn đầy đủ
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var check = await manager.UpdateTrangThaiKy(model,_env,baseUrl);
 
                 return check ? Ok("Kỹ hoàn tất") : BadRequest("Có lỗi xảy ra");
             }

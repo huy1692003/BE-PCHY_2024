@@ -110,7 +110,25 @@ namespace API_PCHY.Models.SMART_CA
             public string fullNameUser { get; set; }
             //idUser của app phục vụ cho việc tạo báo cáo 
             public string idUserApp { get; set; }
+            public int signType {  get; set; }
+            public string pathImageSign {  get; set; }
         }
+
+        public class RequestInsertSignature
+        {
+            public string dataBase64 { get; set; }
+            public string signImgBase64 { get; set; }
+            public string signName { get; set; }
+            public int signType { get; set; }
+        }
+
+        public class ResponseInsertSignature
+        {
+            public bool Success { get; set; }
+            public string Message { get; set; }
+            public string Data { get; set; } // Đây là dataBase64
+        }
+
 
     }
 }

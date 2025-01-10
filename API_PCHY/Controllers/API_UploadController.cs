@@ -53,7 +53,7 @@ namespace api_pchy.controllers
 
 
         [HttpPost("file")]
-        public IActionResult UploadFile(IFormFile file , string typeFile="fileYCTN")
+        public IActionResult UploadFile(IFormFile file, string typeFile = "fileYCTN")
         {
             if (file == null || file.Length == 0)
             {
@@ -61,7 +61,7 @@ namespace api_pchy.controllers
             }
 
             // Định nghĩa thư mục nơi lưu trữ các tệp
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/"+typeFile);
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/" + typeFile);
 
             // Kiểm tra và tạo thư mục nếu chưa tồn tại
             if (!Directory.Exists(folderPath))
@@ -69,11 +69,16 @@ namespace api_pchy.controllers
                 Directory.CreateDirectory(folderPath);
             }
 
+            // Tạo chuỗi thời gian hiện tại
+            string dateTimeString = DateTime.Now.ToString("yyyyMMddHHmmss");
+
             // Chuyển tên file thành không dấu và viết liền
             var fileName = Path.GetFileNameWithoutExtension(file.FileName);
             var extension = Path.GetExtension(file.FileName);
             var normalizedFileName = RemoveDiacritics(fileName).Replace(" ", "");
-            var uniqueFileName = $"{normalizedFileName}{extension}";
+
+            // Nối tên tệp với thời gian và phần mở rộng
+            var uniqueFileName = $"{normalizedFileName}_{dateTimeString}{extension}";
 
             // Đường dẫn đầy đủ đến tệp sẽ lưu
             var filePath = Path.Combine(folderPath, uniqueFileName);
@@ -87,7 +92,7 @@ namespace api_pchy.controllers
                 }
 
                 // Trả về đường dẫn tệp tương đối
-                var relativePath = Path.Combine("/"+typeFile, uniqueFileName).Replace("\\", "/");
+                var relativePath = Path.Combine("/" + typeFile, uniqueFileName).Replace("\\", "/");
                 return Ok(new { FilePath = relativePath });
             }
             catch (Exception ex)

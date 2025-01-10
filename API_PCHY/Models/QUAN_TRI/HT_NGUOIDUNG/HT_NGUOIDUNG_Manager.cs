@@ -125,27 +125,12 @@ namespace APIPCHY_PhanQuyen.Models.QLTN.HT_NGUOIDUNG
                         {
                             HTNguoiDungDTO user = new HTNguoiDungDTO
                             {
-                                ID = dr["ID"].ToString(),
-                                //DM_DONVI_ID = dr["DM_DONVI_ID"].ToString(),
-                                //DM_PHONGBAN_ID = dr["DM_PHONGBAN_ID"].ToString(),
-                                //DM_CHUCVU_ID = dr["DM_CHUCVU_ID"].ToString(),
-                                TEN_DANG_NHAP = dr["TEN_DANG_NHAP"].ToString(),
-                                //MAT_KHAU = dr["MAT_KHAU"].ToString(),
+                                ID = dr["ID"].ToString(),                               
+                                TEN_DANG_NHAP = dr["TEN_DANG_NHAP"].ToString(),                              
                                 HO_TEN = dr["HO_TEN"].ToString(),
                                 EMAIL = dr["EMAIL"].ToString(),
-                                LDAP = dr["LDAP"].ToString(),
                                 TRANG_THAI = dr["TRANG_THAI"] == DBNull.Value ? (int?)null : Convert.ToInt32(dr["TRANG_THAI"]),
-                                NGAY_TAO = dr["NGAY_TAO"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dr["NGAY_TAO"]),
-                                NGUOI_TAO = dr["NGUOI_TAO"].ToString(),
-                                NGAY_CAP_NHAT = dr["NGAY_CAP_NHAT"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dr["NGAY_CAP_NHAT"]),
-                                NGUOI_CAP_NHAT = dr["NGUOI_CAP_NHAT"].ToString(),
-                                SO_DIEN_THOAI = dr["SO_DIEN_THOAI"].ToString(),
-                                GIOI_TINH = dr["GIOI_TINH"] == DBNull.Value ? (int?)null : Convert.ToInt32(dr["GIOI_TINH"]),
-                                //SO_CMND = dr["SO_CMND"].ToString(),
-                                TRANG_THAI_DONG_BO = dr["TRANG_THAI_DONG_BO"] == DBNull.Value ? (int?)null : Convert.ToInt32(dr["TRANG_THAI_DONG_BO"]),
-                                ROLEID = dr["ROLEID"].ToString(),
-                                PHONG_BAN = dr["PHONG_BAN"].ToString(),
-                                ANHDAIDIEN = dr["ANHDAIDIEN"].ToString()
+                              
                             };
 
                             result.Add(user);
