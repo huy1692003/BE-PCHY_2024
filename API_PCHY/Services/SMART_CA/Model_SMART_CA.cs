@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 
-namespace API_PCHY.Models.SMART_CA
+namespace API_PCHY.Services.SMART_CA
 {
     public class Model_SMART_CA
     {
@@ -108,10 +108,17 @@ namespace API_PCHY.Models.SMART_CA
             public string pathFileIn_Out { get; set; }
             public string descSign { get; set; }
             public string fullNameUser { get; set; }
-            //idUser của app phục vụ cho việc tạo báo cáo 
-            public string idUserApp { get; set; }
-            public int signType {  get; set; }
-            public string pathImageSign {  get; set; }
+
+            public string idUserApp { get; set; }   //idUser của app phục vụ cho việc tạo báo cáo 
+            public int signType { get; set; }
+            public string pathImageSign { get; set; }
+        }
+        public class ResponseSign
+        {
+            
+            public bool isSuccess { get; set; }=false;
+            public string pathFileNew { get; set; } = "";
+            public string message { get; set; } = "";
         }
 
         public class RequestInsertSignature

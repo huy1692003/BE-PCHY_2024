@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using API_PCHY.Models.QLTN.QLTN_CHI_TIET_THI_NGHIEM;
 using API_PCHY.Models.QLTN.QLTN_NGUOI_KY;
 using iTextSharp.text;
-using static API_PCHY.Models.SMART_CA.Model_SMART_CA;
+using static API_PCHY.Services.SMART_CA.Model_SMART_CA;
 
 namespace API_PCHY.Models.QLTN.QLTN_KYSO
 {

@@ -6,7 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SmartCATHNetCore
+namespace API_PCHY.Services.SMART_CA
 {
     /// <summary>
     /// 

@@ -1,5 +1,4 @@
 ﻿using API_PCHY.Models.QLTN.BAO_CAO;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -9,44 +8,89 @@ namespace API_PCHY.Controllers.QLTN.BAO_CAO
     [ApiController]
     public class BAOCAOController : ControllerBase
     {
-        private SL_QLTN_THEOKHACHHANG_Manager sl_qltn_theokhach_manager = new SL_QLTN_THEOKHACHHANG_Manager();
-        private SL_QLTN_THEO_DONVI_Manager _Manager = new SL_QLTN_THEO_DONVI_Manager();
+        private readonly BAO_CAO_Manager _baoCaoManager;
+
+        public BAOCAOController()
+        {
+            _baoCaoManager = new BAO_CAO_Manager();
+        }
+
         public class DateRangeRequest
         {
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
         }
+
+        /// <summary>
+        /// Báo cáo số lượng yêu cầu thí nghiệm theo khách hàng.
+        /// </summary>
         [HttpPost]
         [Route("sl_qltn_theoKH")]
-        public IActionResult get_sl_qltn_theoKH([FromBody] DateRangeRequest dateRange)
+        public IActionResult GetSlQltnTheoKh([FromBody] DateRangeRequest dateRange)
         {
             try
             {
-                var result = sl_qltn_theokhach_manager.getall(dateRange.StartDate, dateRange.EndDate);
+                var result = _baoCaoManager.get_SL_QLTN_THEOKHACHHANG(dateRange.StartDate, dateRange.EndDate);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
-
+        /// <summary>
+        /// Báo cáo số lượng yêu cầu thí nghiệm theo đơn vị thực hiện.
+        /// </summary>
         [HttpPost]
         [Route("sl_qltn_theo_DONVITHUCHIEN")]
-        public IActionResult get_sl_qltn_theo_DonVi([FromBody] DateRangeRequest dateRange)
+        public IActionResult GetSlQltnTheoDonVi([FromBody] DateRangeRequest dateRange)
         {
             try
             {
-                var result = _Manager.getall(dateRange.StartDate, dateRange.EndDate);
+                var result = _baoCaoManager.get_SOLUONG_YCTN(dateRange.StartDate, dateRange.EndDate);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
+        /// <summary>
+        /// Thống kê chữ ký số theo đơn vị.
+        /// </summary>
+        [HttpPost]
+        [Route("thongke_chukyso")]
+        public IActionResult ThongKeChuKySo([FromBody] DateRangeRequest dateRange)
+        {
+            try
+            {
+                var result = _baoCaoManager.thongke_chukyso(dateRange.StartDate, dateRange.EndDate);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
+        /// <summary>
+        /// Lấy dữ liệu dashboard.
+        /// </summary>
+        [HttpGet]
+        [Route("getDashboard")]
+        public IActionResult GetDashboard([FromQuery] string userID)
+        {
+            try
+            {
+                var result = _baoCaoManager.getDashboard(userID);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

@@ -8,9 +8,7 @@ using RestSharp;
 using System.IO;
 using SignService.Common.HashSignature.Common;
 using SignService.Common.HashSignature.Interface;
-using SmartCATHNetCore;
 using Microsoft.AspNetCore.Hosting;
-using static API_PCHY.Models.SMART_CA.Model_SMART_CA;
 using APIPCHY.Helpers;
 using QRCoder;
 using System.Threading.Tasks;
@@ -18,36 +16,43 @@ using iTextSharp.text.pdf;
 using iTextSharp.text;
 using PdfReader = iTextSharp.text.pdf.PdfReader;
 using System.Threading;
+using static API_PCHY.Services.SMART_CA.Model_SMART_CA;
+using Microsoft.Extensions.Configuration;
 
 
 
-namespace API_PCHY.Models.SMART_CA
+namespace API_PCHY.Services.SMART_CA
 {
     public class SmartCA769
     {
 
         private static string client_id = "4b0c-638712580414678530.apps.smartcaapi.com";
         private static string client_secret = "ODFlMTAxYjE-NjYxOS00YjBj";
-        private static string URIInsertSignatureToFile = "http://localhost:9999/api/add-sign/json";
+        private readonly string _uriServer;
+        private static string URI_InsertSignatureToFile = "http://localhost:9999/api/add-sign/json";
         private readonly IWebHostEnvironment _webHostEnvironment;
         DataHelper helper = new DataHelper();
 
 
-        public SmartCA769(IWebHostEnvironment webHostEnvironment)
+        public SmartCA769(IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
         {
             _webHostEnvironment = webHostEnvironment;
+            _uriServer = configuration["URI_SEVER"];
         }
 
         //Hàm ký số 
-        public async Task<string> _signSmartCA(RequestSign req, string baseURL)
+        public async Task<ResponseSign> _signSmartCA(RequestSign req)
         {
+            ResponseSign resSign = new ResponseSign();
 
             // Lấy chứng chỉ người dùng
             var userCert = _getAccountCert("https://gwsca.vnpt.vn/sca/sp769/v1/credentials/get_certificate", req.userSign);
 
             if (userCert == null)
             {
-                return "";
+                resSign.isSuccess = false;
+                resSign.message = "Thông tin tài khoản ký số không còn hiệu lực !";
+                return resSign;
             }
 
             string certBase64 = userCert.cert_data;
@@ -70,10 +75,12 @@ namespace API_PCHY.Models.SMART_CA
                     signName = req.fullNameUser,
                     signType = req.signType
                 };
-                ResponseInsertSignature res = await InsertSignatureToFile(URIInsertSignatureToFile, req_);
+                ResponseInsertSignature res = await InsertSignatureToFile(URI_InsertSignatureToFile, req_);
                 if (!res.Success)
                 {
-                    return "";
+                    resSign.isSuccess = false;
+                    resSign.message = res.Message;
+                    return resSign;
                 }
                 unsignData = Convert.FromBase64String(res.Data);
 
@@ -81,7 +88,9 @@ namespace API_PCHY.Models.SMART_CA
             catch (Exception ex)
             {
                 // Ghi log lỗi nếu không đọc được file
-                return "";
+                resSign.isSuccess = false;
+                resSign.message = "File không hợp lệ hãy kiểm tra lại định dạng !";
+                return resSign; ;
             }
 
             // Tạo signer từ HashSignerFactory
@@ -112,68 +121,65 @@ namespace API_PCHY.Models.SMART_CA
             var startTime = DateTime.Now; // Ghi lại thời gian bắt đầu
 
             //Kiểm tra trạng thái ký dữ liệu
-            while (!isConfirm && (DateTime.Now - startTime).TotalSeconds < 300)  // Chờ tối đa 5 phút
-            {
-                transactionStatus = _getStatus(string.Format("https://gwsca.vnpt.vn/sca/sp769/v1/signatures/sign/{0}/status", dataSign.transaction_id));
+            //while (!isConfirm && (DateTime.Now - startTime).TotalSeconds < 300)  // Chờ tối đa 5 phút
+            //{
+            //    transactionStatus = _getStatus(string.Format("https://gwsca.vnpt.vn/sca/sp769/v1/signatures/sign/{0}/status", dataSign.transaction_id));
 
-                if (transactionStatus.signatures != null)
-                {
-                    datasigned = transactionStatus.signatures[0].signature_value;
-                    mapping = transactionStatus.signatures[0].doc_id;
-                    isConfirm = true;
-                }
-                else
-                {
-                    count++;
-                    Thread.Sleep(10000); // Chờ 10 giây trước khi thử lại
-                }
-            }
+            //    if (transactionStatus.signatures != null)
+            //    {
+            //        datasigned = transactionStatus.signatures[0].signature_value;
+            //        mapping = transactionStatus.signatures[0].doc_id;
+            //        isConfirm = true;
+            //    }
+            //    else
+            //    {
+            //        count++;
+            //        Thread.Sleep(10000); // Chờ 10 giây trước khi thử lại
+            //    }
+            //}
 
-            //string base64String = Convert.ToBase64String(unsignData);
-            //byte[] byteArray = Convert.FromBase64String(base64String);
+            string base64String = Convert.ToBase64String(unsignData);
+            byte[] byteArray = Convert.FromBase64String(base64String);
             //Nếu không nhận được chữ ký, trả về thất bại
-            if (!isConfirm || string.IsNullOrEmpty(datasigned))
-            {
-                insert_LOG_KYSO(reqSign, "0", req.idUserApp);
-                return "";
-            }
+            //if (!isConfirm || string.IsNullOrEmpty(datasigned))
+            //{
+            //    insert_LOG_KYSO(reqSign, "0", req.idUserApp);
+            //    return "";
+            //}
 
-            // Kiểm tra tính hợp lệ của chữ ký
-            if (!signer.CheckHashSignature(datasigned))
-            {
-                insert_LOG_KYSO(reqSign, "0", req.idUserApp);
-                return "";
-            }
+            //// Kiểm tra tính hợp lệ của chữ ký
+            //if (!signer.CheckHashSignature(datasigned))
+            //{
+            //    insert_LOG_KYSO(reqSign, "0", req.idUserApp);
+            //    return "";
+            //}
 
-            //Package external signature to signed file
-            byte[] signed = signer.Sign(datasigned);
+            ////Package external signature to signed file
+            //byte[] signed = signer.Sign(datasigned);
             string pathFileOutput = Path.ChangeExtension(pathFileInput, ".pdf");
             try
             {
-                // Xóa file
-                File.Delete(pathFileInput);
-
-                // Ghi file đã ký vào đường dẫn output
-                File.WriteAllBytes(pathFileOutput, signed);
-
-                // Tạo đường dẫn tương đối từ `wwwroot`
+               
+                File.Delete(pathFileInput);             
+                File.WriteAllBytes(pathFileOutput, byteArray);          
                 string pathFileOutputDB = "/" + Path.GetRelativePath(_webHostEnvironment.WebRootPath, pathFileOutput).Replace("\\", "/");
-
-                insert_LOG_KYSO(reqSign, "1", req.idUserApp);
-
-                // Tạo QR code từ liên kết
-                string qrCodeLink = baseURL + pathFileOutput;
-                byte[] qrCodeImageBytes = GenerateQrCode(qrCodeLink); // Generate QR code as byte[]
-
+                insert_LOG_KYSO(reqSign, "1", req.idUserApp);          
+                string qrCodeLink = _uriServer + pathFileOutput;
+                byte[] qrCodeImageBytes = GenerateQrCode(qrCodeLink); 
                 // Chèn QR code vào file PDF đã ký
                 AddQrCodeToPdf(pathFileOutput, qrCodeImageBytes);
 
-                return pathFileOutputDB;
+                resSign.isSuccess = true;
+                resSign.message = "Thực hiện ký số thành công ";
+                resSign.pathFileNew= pathFileOutputDB;
+                return resSign;
             }
             catch (Exception ex)
             {
                 // Ghi log lỗi nếu không ghi được file
-                return "";
+                resSign.isSuccess = false;
+                resSign.message = "Thực hiện ký số thất bại hãy liên hệ quản trị viên để hỗ trợ " ;
+                return resSign;
             }
         }
 
@@ -196,11 +202,7 @@ namespace API_PCHY.Models.SMART_CA
                 else
                 {
                     // Trả về đối tượng ResponseInsertSignature với thông tin lỗi
-                    return new ResponseInsertSignature
-                    {
-                        Success = false,
-                        Message = $"Error: {response.StatusCode}, {response.Content}"
-                    };
+                   return JsonConvert.DeserializeObject<ResponseInsertSignature>(response.Content);
                 }
             }
             catch (Exception ex)
@@ -384,12 +386,12 @@ namespace API_PCHY.Models.SMART_CA
                 serial_number = user.serial_number
             };
             reqS = req;
-            var response = Query(req, uri);
-            if (response != null)
-            {
-                ResSign res = JsonConvert.DeserializeObject<ResSign>(response);
-                return res.data;
-            }
+            //var response = Query(req, uri);
+            //if (response != null)
+            //{
+            //    ResSign res = JsonConvert.DeserializeObject<ResSign>(response);
+            //    return res.data;
+            //}
             return null;
         }
 

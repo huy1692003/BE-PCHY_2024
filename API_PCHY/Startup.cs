@@ -1,4 +1,5 @@
-using API_PCHY.Models.SMART_CA;
+using API_PCHY.Models.QLTN.QLTN_KYSO;
+using API_PCHY.Services.SMART_CA;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,6 +42,7 @@ namespace APIPCHY_PhanQuyen
 
             services.AddDirectoryBrowser();
             services.AddTransient<SmartCA769>();
+            services.AddTransient<QLTN_KYSO_Manager>();
             services.AddControllers();
 
 

@@ -8,16 +8,23 @@ using API_PCHY.Models.QLTN.QLTN_CHI_TIET_THI_NGHIEM;
 using API_PCHY.Models.QLTN.QLTN_NGUOI_KY;
 using APIPCHY_PhanQuyen.Models.QLTN.DM_DONVI;
 using Newtonsoft.Json;
-using API_PCHY.Models.SMART_CA;
 using Microsoft.AspNetCore.Hosting;
 using System.Threading.Tasks;
+using API_PCHY.Services.SMART_CA;
+using static API_PCHY.Services.SMART_CA.Model_SMART_CA;
 
 namespace API_PCHY.Models.QLTN.QLTN_KYSO
 {
     public class QLTN_KYSO_Manager
     {
 
-       
+
+        private readonly SmartCA769 _smartCA769;
+
+        public QLTN_KYSO_Manager(SmartCA769 smartCA769)
+        {
+            _smartCA769 = smartCA769;
+        }
 
         DataHelper db = new DataHelper();
         QLTN_NGUOI_KY_Manager nk = new QLTN_NGUOI_KY_Manager();
@@ -101,7 +108,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
         }
 
 
-        public async Task<bool> UpdateTrangThaiKy(ReqUpdateKySo req, IWebHostEnvironment web, string baseURL)
+        public async Task<string> UpdateTrangThaiKy(ReqUpdateKySo req)
         {
             try
             {
@@ -111,44 +118,36 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
                 }
                 else
                 {
-                    return await UpdateTrangThaiKyWithSign(req, web, baseURL);
+                    return await UpdateTrangThaiKyWithSign(req);
                 }
             }
             catch (Exception ex)
             {
                 // Đảm bảo thông báo lỗi rõ ràng và có thể gỡ lỗi dễ dàng
-                throw new Exception($"Lỗi khi cập nhật trạng thái ký: {ex.Message}", ex);
+                return "Có lỗi xảy ra khi thực hiện ký số hãy thử lại sau !";
             }
         }
 
-        private async Task<bool> UpdateTrangThaiKyForCancel(ReqUpdateKySo req)
+        private async Task<string> UpdateTrangThaiKyForCancel(ReqUpdateKySo req)
         {
-            string result = db.ExcuteNonQuery(
+            return db.ExcuteNonQuery(
                 "PKG_QLTN_HUY.update_TrangThai_Ky",
                 "p_Error",
                 "p_ID", "p_MaCTTN", "p_ID_NGUOI_KY", "p_NHOM_NGUOI_KY", "p_TRANG_THAI", "p_LY_DO_TUCHOI", "p_PATH_FILE",
                 req.Id, req.MaCTTN, req.IdNguoiKy, req.NhomNguoiKy, req.TrangThai, req.TrangThai == -1 ? req.LyDoTuChoi : DBNull.Value, DBNull.Value
             );
-            return string.IsNullOrEmpty(result);
         }
 
-        private async Task<bool> UpdateTrangThaiKyWithSign(ReqUpdateKySo req, IWebHostEnvironment web, string baseURL)
+        private async Task<string> UpdateTrangThaiKyWithSign(ReqUpdateKySo req)
         {
-            SmartCA769 smartCA769 = new SmartCA769(web);
-            string pathOutput = await smartCA769._signSmartCA(req.requestSign, baseURL);
-            if (string.IsNullOrEmpty(pathOutput))
-            {
-                // Thêm thông báo lỗi chi tiết nếu không có đường dẫn đầu ra
-                throw new Exception("Không thể tạo chữ ký cho yêu cầu.");
-            }
-
-            string result = db.ExcuteNonQuery(
+            ResponseSign res = await _smartCA769._signSmartCA(req.requestSign);
+            if (!res.isSuccess) return res.message;
+            return db.ExcuteNonQuery(
                 "PKG_QLTN_HUY.update_TrangThai_Ky",
                 "p_Error",
                 "p_ID", "p_MaCTTN", "p_ID_NGUOI_KY", "p_NHOM_NGUOI_KY", "p_TRANG_THAI", "p_LY_DO_TUCHOI", "p_PATH_FILE",
-                req.Id, req.MaCTTN, req.IdNguoiKy, req.NhomNguoiKy, req.TrangThai, DBNull.Value, pathOutput
+                req.Id, req.MaCTTN, req.IdNguoiKy, req.NhomNguoiKy, req.TrangThai, DBNull.Value, res.pathFileNew
             );
-            return string.IsNullOrEmpty(result);
         }
 
     }

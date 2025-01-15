@@ -16,15 +16,13 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
     [ApiController]
     public class QLTN_KYSOController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
-
+        private QLTN_KYSO_Manager qLTN_KYSO_Manager;
         // Tiêm IWebHostEnvironment vào constructor của controller
-        public QLTN_KYSOController(IWebHostEnvironment env)
+        public QLTN_KYSOController(QLTN_KYSO_Manager qLTN_KYSO_Manager)
         {
-            _env = env;
+            this.qLTN_KYSO_Manager = qLTN_KYSO_Manager;
         }
 
-        QLTN_KYSO_Manager manager = new QLTN_KYSO_Manager();
 
         [Route("search_document")]
         [HttpPost]
@@ -34,7 +32,7 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
             {
                 int totalRecord = 0;
 
-                var result = manager.SEARCH_VANBAN(paginage, model, out totalRecord);
+                var result = qLTN_KYSO_Manager.SEARCH_VANBAN(paginage, model, out totalRecord);
 
                 return Ok(new { total = totalRecord, data = result });
             }
@@ -52,7 +50,7 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
                 int totalRecord = 0;
 
                 // Gọi phương thức để lấy dữ liệu
-                var result = manager.SEARCH_VANBAN(paginage, model, out totalRecord);
+                var result = qLTN_KYSO_Manager.SEARCH_VANBAN(paginage, model, out totalRecord);
 
                 // Lấy URL gốc từ request để tạo đường dẫn đầy đủ
                 var baseUrl = $"{Request.Scheme}://{Request.Host}";
@@ -94,7 +92,7 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
                             )
                     ),
                     // Đảm bảo đường dẫn đầy đủ cho URL của file
-                  
+
                 }).ToList();
 
                 // Khởi tạo ExcelHelper để xuất dữ liệu ra Excel
@@ -134,10 +132,9 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
             try
             {
                 // Lấy URL gốc từ request để tạo đường dẫn đầy đủ
-                var baseUrl = $"{Request.Scheme}://{Request.Host}";
-                var check = await manager.UpdateTrangThaiKy(model,_env,baseUrl);
+                string msgError = await qLTN_KYSO_Manager.UpdateTrangThaiKy(model);
 
-                return check ? Ok("Kỹ hoàn tất") : BadRequest("Có lỗi xảy ra");
+                return string.IsNullOrEmpty(msgError) ? Ok("Thực hiện ký số hoàn tất") : BadRequest(msgError);
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
