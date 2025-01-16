@@ -1,4 +1,5 @@
 ﻿using API_PCHY.Models.QLTN.QLTN_NGUOI_KY;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -7,6 +8,7 @@ namespace API_PCHY.Controllers.QLTN.QLTN_NGUOI_KY
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class QLTN_NGUOI_KYController : ControllerBase
     {
         QLTN_NGUOI_KY_Manager manager = new QLTN_NGUOI_KY_Manager();

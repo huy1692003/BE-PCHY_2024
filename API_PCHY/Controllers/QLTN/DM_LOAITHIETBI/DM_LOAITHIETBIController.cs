@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using API_PCHY.Models.QLTN.DM_LOAITHIETBI;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace API_PCHY.Controllers.QLTN.DM_LOAITHIETBI
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class DM_LOAITHIETBIController : ControllerBase
     {
         DM_LOAITHIETBI_Manager manager = new DM_LOAITHIETBI_Manager();

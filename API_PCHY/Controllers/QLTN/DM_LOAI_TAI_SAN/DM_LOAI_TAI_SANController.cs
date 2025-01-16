@@ -3,6 +3,7 @@ using APIPCHY.Helpers;
 using APIPCHY_PhanQuyen.Models.QLKC.DM_PHONGBAN;
 using APIPCHY_PhanQuyen.Models.QLKC.HT_MENU;
 using APIPCHY_PhanQuyen.Models.QLKC.HT_NGUOIDUNG;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace API_PCHY.Controllers.QLTN.DM_LOAI_TAI_SAN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class DM_LOAI_TAI_SANController : ControllerBase
     {
         private readonly DM_LOAI_TAI_SAN_Manager _dmLoaiTS = new DM_LOAI_TAI_SAN_Manager();

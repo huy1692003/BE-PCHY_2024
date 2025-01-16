@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
 using APIPCHY_PhanQuyen.Models.QLTN.HT_MENU;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_MENU
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class HT_MENUController : ControllerBase
     {
         HT_MENU_Manager manager = new HT_MENU_Manager();

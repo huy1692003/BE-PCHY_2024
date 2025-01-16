@@ -12,11 +12,13 @@ using System.Drawing;
 using System.Linq;
 using System.Transactions;
 using API_PCHY.Models.QLTN.DM_LOAITHIETBI;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API_PCHY.Controllers.QLTN.QLTN_THIET_BI_YCTN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class QLTN_THIET_BI_YCTN_Controller : ControllerBase
     {
         QLTN_THIET_BI_Manager manager = new QLTN_THIET_BI_Manager();

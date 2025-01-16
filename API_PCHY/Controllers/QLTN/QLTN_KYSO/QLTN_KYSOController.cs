@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using API_PCHY.Models.QLTN.QLTN_KYSO;
 using API_PCHY.Models.QLTN.QLTN_NGUOI_KY;
+using Microsoft.AspNetCore.Authorization;
+
 //using API_PCHY.Models.SMART_CA;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +16,7 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class QLTN_KYSOController : ControllerBase
     {
         private QLTN_KYSO_Manager qLTN_KYSO_Manager;

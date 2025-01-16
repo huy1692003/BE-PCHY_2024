@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
 using API_PCHY.Models.QLTN.DM_LOAITHIETBI;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API_PCHY.Controllers.QLTN.DM_TRUONG_YCTN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class DM_TRUONG_YCTNController : ControllerBase
     {
         DM_TRUONG_YCTN_Manager manager = new DM_TRUONG_YCTN_Manager();

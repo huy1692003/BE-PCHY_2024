@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using API_PCHY.Models.QLTN.DM_LOAI_YCTN;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API_PCHY.Controllers.QLTN.DM_LOAI_YCTN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class DM_LOAI_YCTNController : ControllerBase
     {
         private readonly DM_LOAI_YCTN_Manager _manager;

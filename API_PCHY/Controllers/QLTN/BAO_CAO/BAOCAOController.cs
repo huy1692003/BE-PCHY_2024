@@ -1,4 +1,5 @@
 ﻿using API_PCHY.Models.QLTN.BAO_CAO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -6,6 +7,7 @@ namespace API_PCHY.Controllers.QLTN.BAO_CAO
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class BAOCAOController : ControllerBase
     {
         private readonly BAO_CAO_Manager _baoCaoManager;

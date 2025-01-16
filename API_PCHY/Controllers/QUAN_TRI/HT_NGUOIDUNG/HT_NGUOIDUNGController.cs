@@ -6,22 +6,26 @@ using System.Collections.Generic;
 using System;
 using APIPCHY_PhanQuyen.Models.QLKC.HT_MENU;
 using APIPCHY_PhanQuyen.Models.QLTN.HT_NGUOIDUNG;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]  // Đảm bảo chỉ người dùng đã xác thực mới có thể gọi API này
     public class HT_NGUOIDUNGController : ControllerBase
     {
         private readonly HT_NGUOIDUNG_Manager _manager;
-        private readonly TokenService _tokenService; // Thêm biến cho TokenService
+        private readonly TokenService _tokenService;
 
         public HT_NGUOIDUNGController(IConfiguration configuration)
         {
             _manager = new HT_NGUOIDUNG_Manager(configuration);
-            _tokenService = new TokenService(configuration); // Khởi tạo TokenService
+            _tokenService = new TokenService(configuration);
         }
 
+        // Bỏ qua xác thực cho phương thức login
+        [AllowAnonymous]  // Bỏ qua xác thực cho phương thức login
         [Route("login")]
         [HttpPost]
         public IActionResult Login([FromBody] HT_NGUOIDUNG_Model model)
@@ -38,10 +42,11 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
                 return Unauthorized("Invalid username or password.");
             }
 
-            //var token = _tokenService.GenerateJwtToken(user); // Đảm bảo bạn đã có hàm GenerateToken
+            var token = user.token; // Tạo token khi login thành công
 
-            return Ok(new { user });
+            return Ok(new { user, token });
         }
+
         [HttpPost("get_ListNguoiDung")]
         public IActionResult GET_HT_NGUOIDUNG([FromBody] Dictionary<string, string> formData)
         {
@@ -77,7 +82,7 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
             }
         }
 
-
+        // Các phương thức còn lại đều cần xác thực
         [HttpGet("{id}")]
         public IActionResult GetNguoiDungById(string id)
         {
@@ -96,7 +101,6 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
             }
         }
 
-
         [HttpPost("create")]
         public IActionResult PostInsertNguoiDung([FromBody] HT_NGUOIDUNG_Model nd)
         {
@@ -107,8 +111,6 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
                 return Ok(new { message = "Thêm người dùng thanh công", data = nd });
             }
             return BadRequest(new { message = "Thêm người dùng thất bại hãy đổi lại tên tài khoản khác" });
-
-
         }
 
         [HttpPatch("update")]
@@ -116,7 +118,6 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
         {
             _manager.Update_HT_NGUOIDUNG(nd);
         }
-
 
         [HttpPost("search")]
         public IActionResult FilterUsers([FromBody] UserFilterRequest request)
@@ -144,13 +145,10 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
             }
         }
 
-
-
-        //đổi mật khẩu 
+        // Đổi mật khẩu
         [HttpPost("resetPassword")]
         public IActionResult Reset_Password_HT_NGUOIDUNG([FromBody] Dictionary<string, string> request)
         {
-            // Lấy các giá trị từ Dictionary
             if (!request.TryGetValue("ID", out string id) ||
                 !request.TryGetValue("currentPassword", out string currentPassword) ||
                 !request.TryGetValue("newPassword", out string newPassword))
@@ -158,7 +156,6 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
                 return BadRequest(new { message = "Thiếu thông tin yêu cầu." });
             }
 
-            // Gọi hàm reset password
             string resultMessage = _manager.Reset_Password_HT_NGUOIDUNG(id, currentPassword, newPassword);
 
             if (resultMessage == "Mật khẩu hiện tại không chính xác.")
@@ -168,7 +165,6 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
 
             return Ok(new { message = resultMessage });
         }
-
 
         [HttpDelete("delete/{id}")]
         public IActionResult Delete_HT_NGUOIDUNG(string id)
@@ -198,8 +194,5 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NGUOIDUNG
                 return BadRequest(ex.Message);
             }
         }
-
-
     }
-
 }

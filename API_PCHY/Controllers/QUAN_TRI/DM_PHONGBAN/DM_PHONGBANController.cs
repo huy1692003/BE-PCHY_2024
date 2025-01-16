@@ -1,5 +1,6 @@
 ﻿using APIPCHY_PhanQuyen.Models.QLKC.DM_PHONGBAN;
 using APIPCHY_PhanQuyen.Models.QLTN.DM_PHONGBAN;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,6 +11,7 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.DM_PHONGBAN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class DM_PHONGBANController : ControllerBase
     {
         DM_PHONGBAN_Manager db = new DM_PHONGBAN_Manager();

@@ -6,11 +6,13 @@ using System;
 using System.Linq;
 using APIPCHY_PhanQuyen.Models.QLKC.HT_MENU;
 using APIPCHY_PhanQuyen.Models.QLTN.HT_NHOMQUYEN;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_NHOMQUYEN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class HT_NHOMQUYENController : Controller
     {
         HT_NHOMQUYEN_Manager manager = new HT_NHOMQUYEN_Manager();

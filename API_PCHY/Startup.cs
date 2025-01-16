@@ -8,14 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace APIPCHY_PhanQuyen
 {
@@ -28,44 +24,48 @@ namespace APIPCHY_PhanQuyen
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // C?u h?nh Swagger cho API
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "APIPCHY", Version = "v1" });
+            });
 
-            services.AddSwaggerGen();
-            services.AddControllers();
+            // C?u h?nh CORS (Cho phép t?t c? các origin, header và method)
             services.AddCors(options =>
             {
-                options.AddPolicy("CorsPolicy",
-                builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+                options.AddPolicy("CorsPolicy", builder =>
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             });
 
-            services.AddDirectoryBrowser();
-            services.AddTransient<SmartCA769>();
-            services.AddTransient<QLTN_KYSO_Manager>();
+            // Ðãng k? các d?ch v? c?a ?ng d?ng
             services.AddControllers();
 
+            // Ðãng k? các d?ch v? Transient
+            services.AddTransient<SmartCA769>();
+            services.AddTransient<QLTN_KYSO_Manager>();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
-                AddJwtBearer(o =>
-            o.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidIssuer = Configuration["Jwt:Issuer"],
-                ValidAudience = Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey
-                (Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])),
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = false,
-                ValidateIssuerSigningKey = true
-            });
+            // C?u h?nh JWT Authentication
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true, // Ki?m tra Issuer
+                        ValidateAudience = true, // Ki?m tra Audience
+                        ValidateLifetime = true, // Ki?m tra th?i gian s?ng c?a token
+                        ValidateIssuerSigningKey = true, // Ki?m tra khóa k?
+                        ValidIssuer = Configuration["JwtSettings:Issuer"], // Ð?a ch? Issuer
+                        ValidAudience = Configuration["JwtSettings:Audience"], // Ð?a ch? Audience
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtSettings:Secret"])) // Khóa bí m?t
+                    };
+                });
 
-
+            // Ðãng k? các d?ch v? khác n?u c?n
             //services.AddScoped<IFileService, FileService>();
-
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -74,32 +74,23 @@ namespace APIPCHY_PhanQuyen
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "APIPCHY v1"));
             }
-            app.UseStaticFiles();
-            //app.UseDeveloperExceptionPage();
-            //app.UseFileServer(new FileServerOptions
-            //{
-            //    FileProvider = new PhysicalFileProvider(
-            //        Path.Combine(env.ContentRootPath, "Resources")),
-            //    RequestPath = "/Resources",
-            //    EnableDirectoryBrowsing = false
-            //});
-            app.UseCors("CorsPolicy");
 
+            // C?u h?nh các middleware
             app.UseHttpsRedirection();
-
-
             app.UseRouting();
 
+            // S? d?ng CORS
+            app.UseCors("CorsPolicy");
+
+            // S? d?ng Authentication và Authorization
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // C?u h?nh các endpoints API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
-            app.UseRouting();
-
         }
     }
 }

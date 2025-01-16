@@ -1,6 +1,7 @@
 ﻿using APIPCHY_PhanQuyen.Models.QLKC.HT_PHANQUYEN;
 using APIPCHY_PhanQuyen.Models.QLTN.HT_PHANQUYEN;
 using iTextSharp.text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_PHANQUYEN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class HT_PHANQUYENController : Controller
     {
         HT_PHANQUYEN_Manager manager = new HT_PHANQUYEN_Manager();

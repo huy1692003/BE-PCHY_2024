@@ -4,11 +4,13 @@ using System;
 using API_PCHY.Models.QLTN.QLTN_THIET_BI_YCTN;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API_PCHY.Controllers.QLTN.QLTN_CHI_TIET_THI_NGHIEM
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class QLTN_CHI_TIET_THI_NGHIEMController : ControllerBase
     {
         private readonly QLTN_CHI_TIET_THI_NGHIEM_Manager _manager;

@@ -4,6 +4,7 @@ using API_PCHY.Models.QLTN.DM_LOAI_TAI_SAN;
 using API_PCHY.Models.QLTN.DM_LOAI_YCTN;
 using API_PCHY.Models.QLTN.DM_TRUONG_YCTN;
 using APIPCHY.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,6 +14,7 @@ namespace API_PCHY.Controllers.QLTN.DM_LOAI_BIENBAN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class DM_LOAI_BIENBANController : ControllerBase
     {
         private readonly DM_LOAI_BIENBAN_Manager _manager;

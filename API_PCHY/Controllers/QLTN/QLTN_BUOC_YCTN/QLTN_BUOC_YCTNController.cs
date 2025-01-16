@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API_PCHY.Controllers.QLTN.QLTN_BUOC_YCTN
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class QLTN_BUOC_YCTNController : ControllerBase
     {
         QLTN_BUOC_YCTN_Manager manager = new QLTN_BUOC_YCTN_Manager();

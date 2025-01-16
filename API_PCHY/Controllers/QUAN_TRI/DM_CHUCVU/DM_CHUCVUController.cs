@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
 using API_PCHY.Models.QUAN_TRI.DM_CHUC_VU;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API_PCHY.Controllers.QUAN_TRI.DM_CHUCVU
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class DM_CHUCVUController : ControllerBase
     {
         DM_CHUCVU_Manager manager = new DM_CHUCVU_Manager();

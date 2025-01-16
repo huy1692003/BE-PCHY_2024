@@ -1,6 +1,7 @@
 ﻿using APIPCHY_PhanQuyen.Models.QLKC.DM_DONVI;
 using APIPCHY_PhanQuyen.Models.QLTN.DM_DONVI;
 using iTextSharp.text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.DM_DONVI
 
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class DM_DONVIController : ControllerBase
     {
         DM_DONVI_Manager db = new DM_DONVI_Manager();

@@ -121,47 +121,51 @@ namespace API_PCHY.Services.SMART_CA
             var startTime = DateTime.Now; // Ghi lại thời gian bắt đầu
 
             //Kiểm tra trạng thái ký dữ liệu
-            //while (!isConfirm && (DateTime.Now - startTime).TotalSeconds < 300)  // Chờ tối đa 5 phút
-            //{
-            //    transactionStatus = _getStatus(string.Format("https://gwsca.vnpt.vn/sca/sp769/v1/signatures/sign/{0}/status", dataSign.transaction_id));
+            while (!isConfirm && (DateTime.Now - startTime).TotalSeconds < 300)  // Chờ tối đa 5 phút
+            {
+                transactionStatus = _getStatus(string.Format("https://gwsca.vnpt.vn/sca/sp769/v1/signatures/sign/{0}/status", dataSign.transaction_id));
 
-            //    if (transactionStatus.signatures != null)
-            //    {
-            //        datasigned = transactionStatus.signatures[0].signature_value;
-            //        mapping = transactionStatus.signatures[0].doc_id;
-            //        isConfirm = true;
-            //    }
-            //    else
-            //    {
-            //        count++;
-            //        Thread.Sleep(10000); // Chờ 10 giây trước khi thử lại
-            //    }
-            //}
+                if (transactionStatus.signatures != null)
+                {
+                    datasigned = transactionStatus.signatures[0].signature_value;
+                    mapping = transactionStatus.signatures[0].doc_id;
+                    isConfirm = true;
+                }
+                else
+                {
+                    count++;
+                    Thread.Sleep(10000); // Chờ 10 giây trước khi thử lại
+                }
+            }
 
-            string base64String = Convert.ToBase64String(unsignData);
-            byte[] byteArray = Convert.FromBase64String(base64String);
+            //string base64String = Convert.ToBase64String(unsignData);
+            //byte[] byteArray = Convert.FromBase64String(base64String);
             //Nếu không nhận được chữ ký, trả về thất bại
-            //if (!isConfirm || string.IsNullOrEmpty(datasigned))
-            //{
-            //    insert_LOG_KYSO(reqSign, "0", req.idUserApp);
-            //    return "";
-            //}
+            if (!isConfirm || string.IsNullOrEmpty(datasigned))
+            {
+                insert_LOG_KYSO(reqSign, "0", req.idUserApp);
+                resSign.isSuccess = false;
+                resSign.message = "File không hợp lệ hãy kiểm tra lại định dạng !";
+                return resSign;
+            }
 
-            //// Kiểm tra tính hợp lệ của chữ ký
-            //if (!signer.CheckHashSignature(datasigned))
-            //{
-            //    insert_LOG_KYSO(reqSign, "0", req.idUserApp);
-            //    return "";
-            //}
+            // Kiểm tra tính hợp lệ của chữ ký
+            if (!signer.CheckHashSignature(datasigned))
+            {
+                insert_LOG_KYSO(reqSign, "0", req.idUserApp);
+                resSign.isSuccess = false;
+                resSign.message = "File không hợp lệ hãy kiểm tra lại định dạng !";
+                return resSign;
+            }
 
-            ////Package external signature to signed file
-            //byte[] signed = signer.Sign(datasigned);
+            //Package external signature to signed file
+            byte[] signed = signer.Sign(datasigned);
             string pathFileOutput = Path.ChangeExtension(pathFileInput, ".pdf");
             try
             {
                
                 File.Delete(pathFileInput);             
-                File.WriteAllBytes(pathFileOutput, byteArray);          
+                File.WriteAllBytes(pathFileOutput, signed);          
                 string pathFileOutputDB = "/" + Path.GetRelativePath(_webHostEnvironment.WebRootPath, pathFileOutput).Replace("\\", "/");
                 insert_LOG_KYSO(reqSign, "1", req.idUserApp);          
                 string qrCodeLink = _uriServer + pathFileOutput;
@@ -386,12 +390,12 @@ namespace API_PCHY.Services.SMART_CA
                 serial_number = user.serial_number
             };
             reqS = req;
-            //var response = Query(req, uri);
-            //if (response != null)
-            //{
-            //    ResSign res = JsonConvert.DeserializeObject<ResSign>(response);
-            //    return res.data;
-            //}
+            var response = Query(req, uri);
+            if (response != null)
+            {
+                ResSign res = JsonConvert.DeserializeObject<ResSign>(response);
+                return res.data;
+            }
             return null;
         }
 

@@ -1,5 +1,6 @@
 ﻿using APIPCHY_PhanQuyen.Models.QLKC.HT_QUYEN_NGUOIDUNG;
 using APIPCHY_PhanQuyen.Models.QLTN.HT_QUYEN_NGUOIDUNG;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -7,6 +8,7 @@ namespace APIPCHY_PhanQuyen.Controllers.QLKC.HT_QUYEN_NGUOIDUNG
 {
     [Route("APIPCHY/[controller]")]
     [ApiController]
+    [Authorize]
     public class HT_QUYEN_NGUOIDUNGController : ControllerBase
     {
         HT_QUYEN_NGUOIDUNG_Manager manager = new HT_QUYEN_NGUOIDUNG_Manager();
