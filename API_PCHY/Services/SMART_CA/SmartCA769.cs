@@ -51,7 +51,7 @@ namespace API_PCHY.Services.SMART_CA
             if (userCert == null)
             {
                 resSign.isSuccess = false;
-                resSign.message = "Thông tin tài khoản ký số không còn hiệu lực !";
+                resSign.message = "Thông tin tài khoản ký số không còn hiệu lực hãy liên hệ quản trị viên !";
                 return resSign;
             }
 
@@ -89,7 +89,7 @@ namespace API_PCHY.Services.SMART_CA
             {
                 // Ghi log lỗi nếu không đọc được file
                 resSign.isSuccess = false;
-                resSign.message = "File không hợp lệ hãy kiểm tra lại định dạng !";
+                resSign.message = "Có lỗi trong quá trình đọc file và chèn chữ ký !";
                 return resSign; ;
             }
 
@@ -136,16 +136,13 @@ namespace API_PCHY.Services.SMART_CA
                     count++;
                     Thread.Sleep(10000); // Chờ 10 giây trước khi thử lại
                 }
-            }
-
-            //string base64String = Convert.ToBase64String(unsignData);
-            //byte[] byteArray = Convert.FromBase64String(base64String);
+            }       
             //Nếu không nhận được chữ ký, trả về thất bại
             if (!isConfirm || string.IsNullOrEmpty(datasigned))
             {
                 insert_LOG_KYSO(reqSign, "0", req.idUserApp);
                 resSign.isSuccess = false;
-                resSign.message = "File không hợp lệ hãy kiểm tra lại định dạng !";
+                resSign.message = "File đã được ký nhưng không hợp lệ do chưa tìm thấy chữ ký của VNPT chèn vào file";
                 return resSign;
             }
 
@@ -154,7 +151,7 @@ namespace API_PCHY.Services.SMART_CA
             {
                 insert_LOG_KYSO(reqSign, "0", req.idUserApp);
                 resSign.isSuccess = false;
-                resSign.message = "File không hợp lệ hãy kiểm tra lại định dạng !";
+                resSign.message = "Chữ ký của VNPT đã xác nhận thành công nhưng không hợp lệ !";
                 return resSign;
             }
 
@@ -163,26 +160,41 @@ namespace API_PCHY.Services.SMART_CA
             string pathFileOutput = Path.ChangeExtension(pathFileInput, ".pdf");
             try
             {
-               
-                File.Delete(pathFileInput);             
-                File.WriteAllBytes(pathFileOutput, signed);          
+
+                File.Delete(pathFileInput);
+                File.WriteAllBytes(pathFileOutput, signed);
                 string pathFileOutputDB = "/" + Path.GetRelativePath(_webHostEnvironment.WebRootPath, pathFileOutput).Replace("\\", "/");
-                insert_LOG_KYSO(reqSign, "1", req.idUserApp);          
-                string qrCodeLink = _uriServer + pathFileOutput;
-                byte[] qrCodeImageBytes = GenerateQrCode(qrCodeLink); 
-                // Chèn QR code vào file PDF đã ký
-                AddQrCodeToPdf(pathFileOutput, qrCodeImageBytes);
+                try
+                {
+
+                    insert_LOG_KYSO(reqSign, "1", req.idUserApp);
+                }
+                catch (Exception ex)
+                {
+                    resSign.isSuccess = false;
+                    resSign.message = "Có lỗi khi kết nối đến cơ sở dữ liệu để thực hiện lưu trữ phiên giao dịch !";
+                    return resSign;
+
+                }
+                if (req.signType > 1) // Hoàn tất ký nháy sẽ chèn qr code 
+                {
+
+                    string qrCodeLink = _uriServer + pathFileOutput;
+                    byte[] qrCodeImageBytes = GenerateQrCode(qrCodeLink);
+                    // Chèn QR code vào file PDF đã ký
+                    AddQrCodeToPdf(pathFileOutput, qrCodeImageBytes);
+                }
 
                 resSign.isSuccess = true;
                 resSign.message = "Thực hiện ký số thành công ";
-                resSign.pathFileNew= pathFileOutputDB;
+                resSign.pathFileNew = pathFileOutputDB;
                 return resSign;
             }
             catch (Exception ex)
             {
                 // Ghi log lỗi nếu không ghi được file
                 resSign.isSuccess = false;
-                resSign.message = "Thực hiện ký số thất bại hãy liên hệ quản trị viên để hỗ trợ " ;
+                resSign.message = "Thực hiện ký số thất bại hãy liên hệ quản trị viên để hỗ trợ ";
                 return resSign;
             }
         }
@@ -206,7 +218,7 @@ namespace API_PCHY.Services.SMART_CA
                 else
                 {
                     // Trả về đối tượng ResponseInsertSignature với thông tin lỗi
-                   return JsonConvert.DeserializeObject<ResponseInsertSignature>(response.Content);
+                    return JsonConvert.DeserializeObject<ResponseInsertSignature>(response.Content);
                 }
             }
             catch (Exception ex)

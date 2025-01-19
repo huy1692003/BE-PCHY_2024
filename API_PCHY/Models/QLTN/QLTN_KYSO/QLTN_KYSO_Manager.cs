@@ -32,12 +32,14 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
         QLTN_CHI_TIET_THI_NGHIEM_Manager cttn = new QLTN_CHI_TIET_THI_NGHIEM_Manager();
         private List<string> getListTenDonVi(string list)
         {
+            if (string.IsNullOrEmpty(list) || list =="null") return new List<string>();
             // Chuyển chuỗi JSON thành mảng
             string[] result = JsonConvert.DeserializeObject<string[]>(list);
 
             // Tạo danh sách để lưu kết quả
             List<string> tenDonViList = new List<string>();
 
+            
             foreach (string item in result)
             {
                 // Lấy tên đơn vị từ phương thức dv.get_DM_DONVI_ByID
@@ -78,7 +80,7 @@ namespace API_PCHY.Models.QLTN.QLTN_KYSO
                         doc.ma_yctn = row["MA_YCTN"]?.ToString();
                         doc.loai_yctn = row["TEN_LOAI_YC"]?.ToString();
                         doc.ten_loai_bb = row["TEN_LOAI_BB"]?.ToString();
-                        doc.don_vi_thuc_hien = getListTenDonVi(row["DON_VI_THUC_HIEN"]?.ToString());
+                        doc.don_vi_thuc_hien = row["DON_VI_THUC_HIEN"] != DBNull.Value && row["DON_VI_THUC_HIEN"].ToString() != "null" ? getListTenDonVi(row["DON_VI_THUC_HIEN"]?.ToString()):new List<string> { "Không xác định"};
                         doc.ma_loaitb = row["MA_LOAI_TB"]?.ToString();
                         doc.ten_thietbi = row["TEN_THIET_BI"]?.ToString();
                         doc.soluong = row["SO_LUONG"] != DBNull.Value ? int.Parse(row["SO_LUONG"].ToString()) : (int?)null;

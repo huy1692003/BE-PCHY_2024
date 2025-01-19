@@ -17,6 +17,7 @@ namespace API_PCHY.Controllers.QLTN.QLTN_KYSO
     [Route("APIPCHY/[controller]")]
     [ApiController]
     [Authorize]
+
     public class QLTN_KYSOController : ControllerBase
     {
         private QLTN_KYSO_Manager qLTN_KYSO_Manager;

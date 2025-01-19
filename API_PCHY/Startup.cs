@@ -78,7 +78,7 @@ namespace APIPCHY_PhanQuyen
             // C?u h?nh các middleware
             app.UseHttpsRedirection();
             app.UseRouting();
-
+            app.UseStaticFiles();
             // S? d?ng CORS
             app.UseCors("CorsPolicy");
 
